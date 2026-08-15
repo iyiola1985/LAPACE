@@ -26,7 +26,7 @@ export default function MaterialsPage() {
   return (
     <main className="relative mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 py-6 md:px-8">
       <section className="flex flex-col gap-2">
-        <h1 className="font-headline text-[28px] font-bold text-primary md:text-[32px]">
+        <h1 className="accent-underline text-2xl font-bold uppercase tracking-wide text-on-background md:text-3xl">
           Materials Catalog
         </h1>
         <p className="max-w-2xl text-lg text-on-surface-variant">
@@ -40,8 +40,8 @@ export default function MaterialsPage() {
           options={materialCategories}
           value={category}
           onChange={setCategory}
-          activeClassName="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-on-primary shadow-md transition-transform hover:-translate-y-0.5"
-          idleClassName="rounded-full border border-border-subtle bg-surface px-6 py-2 text-sm font-semibold text-on-surface-variant transition-colors hover:bg-surface-container-low"
+          activeClassName="bg-primary px-6 py-2 text-xs font-bold uppercase tracking-wide text-white"
+          idleClassName="border border-border-subtle bg-white px-6 py-2 text-xs font-bold uppercase tracking-wide text-on-surface-variant transition-colors hover:border-primary hover:text-primary"
         />
       </section>
 
@@ -56,7 +56,7 @@ export default function MaterialsPage() {
       <div className="fixed bottom-16 right-4 z-40 md:bottom-8 md:right-8">
         <Link
           href="/quotes"
-          className="flex items-center gap-3 rounded-full bg-tertiary-container px-6 py-4 text-on-tertiary-container shadow-lg transition-transform hover:scale-105 hover:bg-tertiary hover:text-on-primary active:scale-95"
+          className="flex items-center gap-3 bg-primary px-6 py-4 text-white shadow-lg transition-transform hover:scale-105 hover:bg-primary-container active:scale-95"
         >
           <Icon name="request_quote" filled />
           <span className="text-sm font-bold">Request Bulk Quote</span>

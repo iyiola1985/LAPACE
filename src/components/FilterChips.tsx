@@ -12,8 +12,8 @@ export function FilterChips<T extends string>({
   options,
   value,
   onChange,
-  activeClassName = "rounded-full border border-primary bg-primary-container px-4 py-2 text-xs font-medium text-on-primary-container",
-  idleClassName = "rounded-full border border-border-subtle bg-surface-container-lowest px-4 py-2 text-xs font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low",
+  activeClassName = "border border-primary bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wide text-white",
+  idleClassName = "border border-border-subtle bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-on-surface-variant transition-colors hover:border-primary hover:text-primary",
 }: FilterChipsProps<T>) {
   return (
     <div className="flex flex-wrap gap-2">

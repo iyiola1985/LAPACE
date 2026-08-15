@@ -38,7 +38,7 @@ export function MaterialCard({ material }: MaterialCardProps) {
           <p className="mb-1 text-xs font-medium uppercase tracking-wider text-primary">
             {material.label}
           </p>
-          <h3 className="font-headline text-2xl font-semibold text-on-surface">
+          <h3 className="font-headline text-xl font-bold uppercase tracking-wide text-on-surface">
             {material.name}
           </h3>
           <p className="mt-2 line-clamp-2 text-base text-on-surface-variant">
@@ -49,7 +49,7 @@ export function MaterialCard({ material }: MaterialCardProps) {
         <div className="mt-auto flex flex-col gap-3">
           <button
             type="button"
-            className="flex w-full items-center justify-center gap-2 rounded border border-primary py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary-fixed"
+            className="flex w-full items-center justify-center gap-2 border border-primary py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-primary transition-colors hover:bg-primary-fixed"
           >
             <Icon name="description" />
             Technical Specs
@@ -63,7 +63,7 @@ export function MaterialCard({ material }: MaterialCardProps) {
                 kind: "material",
               })
             }
-            className="w-full rounded bg-primary py-2.5 text-sm font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary-container"
+            className="w-full bg-primary py-2.5 text-xs font-bold uppercase tracking-[0.1em] text-on-primary shadow-sm transition-colors hover:bg-primary-container"
           >
             Add to Quote
           </button>

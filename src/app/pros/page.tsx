@@ -26,7 +26,7 @@ export default function ProsPage() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-6 md:px-8">
       <section className="mb-12">
-        <h1 className="mb-3 text-center font-headline text-[32px] font-bold leading-10 md:text-left">
+        <h1 className="accent-underline mb-6 text-center text-2xl font-bold uppercase tracking-wide md:text-left md:text-3xl">
           Find a Roofing Professional
         </h1>
         <div className="relative mx-auto w-full max-w-3xl md:mx-0">

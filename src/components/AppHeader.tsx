@@ -19,26 +19,33 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border-subtle bg-surface">
-      <div className="flex w-full items-center justify-between px-4 py-2 md:px-8">
-        <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-50 w-full bg-surface-dark/95 text-white backdrop-blur-sm">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 md:px-8">
+        <div className="flex items-center gap-3">
           <button
             type="button"
             aria-label="Menu"
-            className="rounded-full p-2 text-primary transition-colors hover:bg-surface-container-low md:hidden"
+            className="rounded p-2 text-white transition-colors hover:bg-white/10 md:hidden"
           >
             <Icon name="menu" />
           </button>
-          <Link
-            href="/"
-            className="font-headline text-2xl font-bold text-primary"
-          >
-            LAPACE Roofing
+          <Link href="/" className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded bg-brand text-sm font-bold text-white">
+              LA
+            </span>
+            <span className="hidden leading-tight sm:block">
+              <span className="block text-sm font-bold tracking-wide text-white">
+                LAPACE
+              </span>
+              <span className="block max-w-[220px] text-[10px] font-medium uppercase tracking-wider text-white/70">
+                Integrated Services & Investment Limited
+              </span>
+            </span>
           </Link>
         </div>
 
         {showDesktopNav ? (
-          <nav className="hidden items-center gap-6 md:flex">
+          <nav className="hidden items-center gap-7 md:flex">
             {desktopLinks.map((link) => {
               const active =
                 link.href === "/"
@@ -51,8 +58,8 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
                   href={link.href}
                   className={
                     active
-                      ? "text-sm font-semibold text-primary"
-                      : "text-sm font-semibold text-on-surface-variant transition-colors hover:text-primary"
+                      ? "border-b-2 border-primary pb-1 text-xs font-semibold uppercase tracking-[0.14em] text-white"
+                      : "border-b-2 border-transparent pb-1 text-xs font-semibold uppercase tracking-[0.14em] text-white/85 transition-colors hover:text-white"
                   }
                 >
                   {link.label}
@@ -65,7 +72,7 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
         <Link
           href="/account"
           aria-label="Account"
-          className="rounded-full p-2 text-primary transition-colors hover:bg-surface-container-low"
+          className="rounded p-2 text-white transition-colors hover:bg-white/10"
         >
           <Icon name="account_circle" />
         </Link>

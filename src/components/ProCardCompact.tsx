@@ -24,7 +24,7 @@ export function ProCardCompact({ pro }: ProCardCompactProps) {
             <Icon
               name="star"
               filled
-              className="text-[16px] text-tertiary-container"
+              className="text-[16px] text-primary"
             />
             <span className="text-xs font-medium tracking-wide text-on-surface-variant">
               {pro.rating} ({pro.reviews} reviews)
@@ -49,7 +49,7 @@ export function ProCardCompact({ pro }: ProCardCompactProps) {
 
       <Link
         href={`/quotes?pro=${pro.id}`}
-        className="block w-full rounded-lg border border-primary py-2 text-center text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low"
+        className="block w-full border border-primary py-2 text-center text-xs font-bold uppercase tracking-[0.1em] text-primary transition-colors hover:bg-primary hover:text-white"
       >
         Request Quote
       </Link>

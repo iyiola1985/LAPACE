@@ -16,7 +16,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 z-50 flex w-full items-center justify-around border-t border-border-subtle bg-surface px-2 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+    <nav className="fixed bottom-0 left-0 z-50 flex w-full items-center justify-around border-t border-border-subtle bg-white px-2 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.06)] md:hidden">
       {items.map((item) => {
         const active =
           item.href === "/"
@@ -29,14 +29,19 @@ export function BottomNav() {
             href={item.href}
             className={
               active
-                ? "my-1 flex scale-95 flex-col items-center justify-center rounded-full bg-primary-container px-3 py-1 text-on-primary-container"
+                ? "my-1 flex flex-col items-center justify-center px-3 py-1 text-primary"
                 : "my-1 flex flex-col items-center justify-center px-3 py-1 text-on-surface-variant hover:text-primary"
             }
           >
-            <Icon name={item.icon} filled={active} className="text-[24px]" />
-            <span className="mt-0.5 text-[12px] font-medium tracking-wide">
+            <Icon name={item.icon} filled={active} className="text-[22px]" />
+            <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide">
               {item.label}
             </span>
+            {active ? (
+              <span className="mt-1 h-0.5 w-6 rounded bg-primary" />
+            ) : (
+              <span className="mt-1 h-0.5 w-6" />
+            )}
           </Link>
         );
       })}

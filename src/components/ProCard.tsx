@@ -26,14 +26,14 @@ export function ProCard({ pro }: ProCardProps) {
       <div className="flex flex-1 flex-col p-3 pt-16">
         <div className="mb-2 flex items-start justify-between gap-2">
           <div>
-            <h3 className="font-headline text-2xl font-semibold text-primary">
+            <h3 className="text-xl font-bold uppercase tracking-wide text-on-background">
               {pro.name}
             </h3>
             <div className="flex items-center gap-1 text-on-surface-variant">
               <Icon
                 name="star"
                 filled
-                className="text-sm text-tertiary-container"
+                className="text-sm text-primary"
               />
               <span className="text-sm font-semibold">
                 {pro.rating} ({pro.reviews} reviews)
@@ -65,7 +65,7 @@ export function ProCard({ pro }: ProCardProps) {
         <div className="mt-auto flex gap-2">
           <Link
             href={`/pros/${pro.id}`}
-            className="flex-1 rounded border border-primary py-2 text-center text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low"
+            className="flex-1 border border-primary py-2 text-center text-xs font-bold uppercase tracking-[0.1em] text-primary transition-colors hover:bg-primary-fixed"
           >
             View Portfolio
           </Link>
@@ -74,7 +74,7 @@ export function ProCard({ pro }: ProCardProps) {
             onClick={() =>
               addItem({ id: `pro:${pro.id}`, name: pro.name, kind: "pro" })
             }
-            className="flex-1 rounded bg-tertiary-container py-2 text-sm font-semibold text-on-tertiary-container transition-colors hover:bg-tertiary hover:text-on-primary"
+            className="flex-1 bg-primary py-2 text-xs font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-container"
           >
             Request Quote
           </button>
