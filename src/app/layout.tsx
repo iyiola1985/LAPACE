@@ -1,6 +1,7 @@
 import { Montserrat } from "next/font/google";
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/AppHeader";
+import { AuthProvider } from "@/components/AuthProvider";
 import { BottomNav } from "@/components/BottomNav";
 import { QuoteProvider } from "@/components/QuoteProvider";
 import "./globals.css";
@@ -31,11 +32,13 @@ export default function RootLayout({
         />
       </head>
       <body className="flex min-h-full flex-col bg-background font-[family-name:var(--font-montserrat)] text-on-background antialiased">
-        <QuoteProvider>
-          <AppHeader />
-          <div className="flex-1 pb-20 md:pb-0">{children}</div>
-          <BottomNav />
-        </QuoteProvider>
+        <AuthProvider>
+          <QuoteProvider>
+            <AppHeader />
+            <div className="flex-1 pb-20 md:pb-0">{children}</div>
+            <BottomNav />
+          </QuoteProvider>
+        </AuthProvider>
       </body>
     </html>
   );

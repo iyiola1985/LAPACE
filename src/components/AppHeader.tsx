@@ -1,15 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "./AuthProvider";
 import { Icon } from "./Icon";
-
-const desktopLinks = [
-  { href: "/", label: "Home" },
-  { href: "/materials", label: "Materials" },
-  { href: "/pros", label: "Marketplace" },
-  { href: "/quotes", label: "Quotes" },
-] as const;
 
 type AppHeaderProps = {
   showDesktopNav?: boolean;
@@ -17,30 +12,38 @@ type AppHeaderProps = {
 
 export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
   const pathname = usePathname();
+  const { user, dashboardPath } = useAuth();
+
+  const desktopLinks = [
+    { href: "/", label: "Home" },
+    { href: "/materials", label: "Materials" },
+    { href: "/pros", label: "Marketplace" },
+    { href: "/quotes", label: "Quotes" },
+    user
+      ? { href: dashboardPath ?? "/account", label: "Dashboard" }
+      : { href: "/register", label: "Join" },
+  ] as const;
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-surface-dark/95 text-white backdrop-blur-sm">
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 md:px-8">
+    <header className="sticky top-0 z-50 w-full border-b border-border-subtle bg-white">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-2 md:px-8">
         <div className="flex items-center gap-3">
           <button
             type="button"
             aria-label="Menu"
-            className="rounded p-2 text-white transition-colors hover:bg-white/10 md:hidden"
+            className="rounded p-2 text-on-background transition-colors hover:bg-surface-container-low md:hidden"
           >
             <Icon name="menu" />
           </button>
-          <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded bg-brand text-sm font-bold text-white">
-              LA
-            </span>
-            <span className="hidden leading-tight sm:block">
-              <span className="block text-sm font-bold tracking-wide text-white">
-                LAPACE
-              </span>
-              <span className="block max-w-[220px] text-[10px] font-medium uppercase tracking-wider text-white/70">
-                Integrated Services & Investment Limited
-              </span>
-            </span>
+          <Link href="/" className="flex items-center" aria-label="Lapace home">
+            <Image
+              src="/images/lapace-logo.png"
+              alt="Lapace Integrated Services and Investment Ltd"
+              width={220}
+              height={64}
+              priority
+              className="h-10 w-auto object-contain sm:h-12"
+            />
           </Link>
         </div>
 
@@ -58,8 +61,8 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
                   href={link.href}
                   className={
                     active
-                      ? "border-b-2 border-primary pb-1 text-xs font-semibold uppercase tracking-[0.14em] text-white"
-                      : "border-b-2 border-transparent pb-1 text-xs font-semibold uppercase tracking-[0.14em] text-white/85 transition-colors hover:text-white"
+                      ? "border-b-2 border-primary pb-1 text-xs font-semibold uppercase tracking-[0.14em] text-on-background"
+                      : "border-b-2 border-transparent pb-1 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant transition-colors hover:text-on-background"
                   }
                 >
                   {link.label}
@@ -72,7 +75,7 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
         <Link
           href="/account"
           aria-label="Account"
-          className="rounded p-2 text-white transition-colors hover:bg-white/10"
+          className="rounded p-2 text-on-background transition-colors hover:bg-surface-container-low"
         >
           <Icon name="account_circle" />
         </Link>
