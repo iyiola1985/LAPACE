@@ -12,16 +12,14 @@ type AppHeaderProps = {
 
 export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
   const pathname = usePathname();
-  const { user, dashboardPath } = useAuth();
+  const { user } = useAuth();
 
   const desktopLinks = [
     { href: "/", label: "Home" },
     { href: "/materials", label: "Materials" },
     { href: "/pros", label: "Marketplace" },
     { href: "/quotes", label: "Quotes" },
-    user
-      ? { href: dashboardPath ?? "/account", label: "Dashboard" }
-      : { href: "/register", label: "Join" },
+    user ? { href: "/account", label: "Account" } : { href: "/register", label: "Join" },
   ] as const;
 
   return (

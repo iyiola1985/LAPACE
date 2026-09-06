@@ -13,6 +13,7 @@ import {
   createId,
   dashboardPathFor,
   findUserByEmail,
+  isAdminEmail,
   readSessionEmail,
   readUsers,
   writeSessionEmail,
@@ -22,6 +23,7 @@ import {
   type ProService,
   type UserProfile,
 } from "@/lib/auth";
+import { ensureDemoAccounts } from "@/lib/admin";
 
 type RegisterClientInput = {
   fullName: string;
@@ -46,6 +48,7 @@ type RegisterProInput = {
 type AuthContextValue = {
   user: UserProfile | null;
   ready: boolean;
+  isAdmin: boolean;
   registerClient: (
     input: RegisterClientInput,
   ) => { ok: true } | { ok: false; error: string };
@@ -70,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    ensureDemoAccounts();
     const email = readSessionEmail();
     if (email) {
       const stored = findUserByEmail(email);
@@ -188,6 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       ready,
+      isAdmin: isAdminEmail(user?.email),
       registerClient,
       registerPro,
       login,

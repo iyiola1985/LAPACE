@@ -54,6 +54,23 @@ export const PRO_SERVICES: ProService[] = [
 export const USERS_KEY = "lapace-users";
 export const SESSION_KEY = "lapace-session";
 
+export function getAdminEmails() {
+  const fromEnv = process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "";
+  const list = fromEnv
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+  if (list.length === 0) {
+    return ["admin@lapacealuminium.com"];
+  }
+  return list;
+}
+
+export function isAdminEmail(email: string | null | undefined) {
+  if (!email) return false;
+  return getAdminEmails().includes(email.trim().toLowerCase());
+}
+
 export function createId(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
 }
@@ -94,5 +111,6 @@ export function findUserByEmail(email: string) {
 }
 
 export function dashboardPathFor(profile: UserProfile) {
+  if (isAdminEmail(profile.email)) return "/admin";
   return profile.role === "pro" ? "/pro/dashboard" : "/dashboard";
 }

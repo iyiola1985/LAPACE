@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   AuthShell,
   FormField,
+  PasswordInput,
   PrimaryButton,
   TextInput,
 } from "@/components/AuthForm";
@@ -51,7 +52,13 @@ export default function RegisterClientPage() {
           <TextInput required value={city} onChange={(e) => setCity(e.target.value)} />
         </FormField>
         <FormField label="Password">
-          <TextInput required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+          />
         </FormField>
         {error ? <p className="text-sm text-status-urgent">{error}</p> : null}
         <PrimaryButton type="submit" className="w-full">

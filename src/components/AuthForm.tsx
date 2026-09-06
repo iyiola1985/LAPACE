@@ -1,9 +1,13 @@
-import type {
-  ButtonHTMLAttributes,
-  InputHTMLAttributes,
-  ReactNode,
-  TextareaHTMLAttributes,
+"use client";
+
+import {
+  useState,
+  type ButtonHTMLAttributes,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type TextareaHTMLAttributes,
 } from "react";
+import { Icon } from "./Icon";
 
 export function FormField({
   label,
@@ -28,6 +32,35 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
       {...props}
       className={`w-full border border-border-subtle bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 ${props.className ?? ""}`}
     />
+  );
+}
+
+export function PasswordInput({
+  className,
+  ...props
+}: Omit<InputHTMLAttributes<HTMLInputElement>, "type">) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div className="relative">
+      <input
+        {...props}
+        type={visible ? "text" : "password"}
+        autoComplete={props.autoComplete ?? "current-password"}
+        className={`w-full border border-border-subtle bg-white py-2.5 pl-3 pr-11 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 ${className ?? ""}`}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? "Hide password" : "Show password"}
+        className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-1 text-on-surface-variant transition-colors hover:text-on-background"
+      >
+        <Icon
+          name={visible ? "visibility_off" : "visibility"}
+          className="text-[22px]"
+        />
+      </button>
+    </div>
   );
 }
 
@@ -69,7 +102,9 @@ export function AuthShell({
       <h1 className="accent-underline text-2xl font-bold uppercase tracking-wide md:text-3xl">
         {title}
       </h1>
-      <p className="mt-4 text-sm text-on-surface-variant md:text-base">{subtitle}</p>
+      <p className="mt-4 text-sm text-on-surface-variant md:text-base">
+        {subtitle}
+      </p>
       <div className="mt-8 space-y-4 border border-border-subtle bg-white p-5 md:p-6">
         {children}
       </div>

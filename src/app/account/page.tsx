@@ -29,7 +29,7 @@ const guestLinks = [
 ] as const;
 
 export default function AccountPage() {
-  const { user, ready, logout, dashboardPath, updateAvatar } = useAuth();
+  const { user, ready, logout, dashboardPath, updateAvatar, isAdmin } = useAuth();
 
   if (!ready) {
     return (
@@ -65,7 +65,9 @@ export default function AccountPage() {
           </div>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href={dashboardPath ?? "/"}>
-              <PrimaryButton type="button">Go to Dashboard</PrimaryButton>
+              <PrimaryButton type="button">
+                {isAdmin ? "Open Admin" : "Go to Dashboard"}
+              </PrimaryButton>
             </Link>
             <button
               type="button"

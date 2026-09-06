@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   AuthShell,
   FormField,
+  PasswordInput,
   PrimaryButton,
   TextArea,
   TextInput,
@@ -94,7 +95,13 @@ export default function RegisterProPage() {
               <TextInput required value={phone} onChange={(e) => setPhone(e.target.value)} />
             </FormField>
             <FormField label="Password">
-              <TextInput required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+              <PasswordInput
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
             </FormField>
           </>
         ) : null}

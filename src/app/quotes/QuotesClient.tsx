@@ -6,11 +6,12 @@ import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { useQuote } from "@/components/QuoteProvider";
 import { getProfessional } from "@/lib/data";
+import { submitQuoteRequest } from "@/lib/admin";
 
 export default function QuotesClient() {
   const searchParams = useSearchParams();
   const proParam = searchParams.get("pro");
-  const { items, removeItem, clear, addItem } = useQuote();
+  const { items, removeItem, clear } = useQuote();
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -24,13 +25,21 @@ export default function QuotesClient() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (linkedPro) {
-      addItem({
+    const basket = [...items];
+    if (linkedPro && !basket.some((item) => item.id === `pro:${linkedPro.id}`)) {
+      basket.push({
         id: `pro:${linkedPro.id}`,
         name: linkedPro.name,
         kind: "pro",
       });
     }
+    submitQuoteRequest({
+      fullName: name,
+      email,
+      phone,
+      notes,
+      items: basket,
+    });
     setSubmitted(true);
     clear();
   }
@@ -45,8 +54,8 @@ export default function QuotesClient() {
           Quote request sent
         </h1>
         <p className="mb-8 text-on-surface-variant">
-          Thanks{name ? `, ${name}` : ""}. Lapace will follow up shortly. This
-          MVP stores requests locally for demo — backend wiring comes next.
+          Thanks{name ? `, ${name}` : ""}. Your request was saved. A Lapace
+          team member will follow up shortly.
         </p>
         <Link
           href="/"
