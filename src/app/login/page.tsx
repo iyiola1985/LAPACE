@@ -20,14 +20,15 @@ import { dashboardPathFor } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, usingSupabase } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
 
   useEffect(() => {
-    ensureDemoAccounts();
-  }, []);
+    if (!usingSupabase) ensureDemoAccounts();
+  }, [usingSupabase]);
 
   function fillDemoClient() {
     ensureDemoAccounts();
@@ -36,16 +37,21 @@ export default function LoginPage() {
     setError("");
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-    ensureDemoAccounts();
-    const result = login(email, password);
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    setPending(true);
+    try {
+      if (!usingSupabase) ensureDemoAccounts();
+      const result = await login(email, password);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      router.push(dashboardPathFor(result.profile));
+    } finally {
+      setPending(false);
     }
-    router.push(dashboardPathFor(result.profile));
   }
 
   return (
@@ -68,24 +74,30 @@ export default function LoginPage() {
           />
         </FormField>
         {error ? <p className="text-sm text-status-urgent">{error}</p> : null}
-        <PrimaryButton type="submit" className="w-full">
-          Log In
+        <PrimaryButton type="submit" className="w-full" disabled={pending}>
+          {pending ? "Signing in..." : "Log In"}
         </PrimaryButton>
       </form>
 
-      <div className="border border-border-subtle bg-surface-container-low px-3 py-3 text-sm text-on-surface-variant">
-        <p className="font-semibold text-on-background">Test client login</p>
-        <p className="mt-1">
-          {DEMO_CLIENT_EMAIL} / {DEMO_CLIENT_PASSWORD}
+      {!usingSupabase ? (
+        <div className="border border-border-subtle bg-surface-container-low px-3 py-3 text-sm text-on-surface-variant">
+          <p className="font-semibold text-on-background">Test client login</p>
+          <p className="mt-1">
+            {DEMO_CLIENT_EMAIL} / {DEMO_CLIENT_PASSWORD}
+          </p>
+          <button
+            type="button"
+            onClick={fillDemoClient}
+            className="mt-2 text-xs font-bold uppercase tracking-[0.12em] text-primary underline"
+          >
+            Fill client credentials
+          </button>
+        </div>
+      ) : (
+        <p className="text-sm text-on-surface-variant">
+          Connected to Supabase. Use your registered account email and password.
         </p>
-        <button
-          type="button"
-          onClick={fillDemoClient}
-          className="mt-2 text-xs font-bold uppercase tracking-[0.12em] text-primary underline"
-        >
-          Fill client credentials
-        </button>
-      </div>
+      )}
 
       <p className="text-sm text-on-surface-variant">
         New here?{" "}

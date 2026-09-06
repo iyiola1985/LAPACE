@@ -22,10 +22,10 @@ export default function RegisterClientPage() {
   const [city, setCity] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-    const result = registerClient({ fullName, email, phone, city, password });
+    const result = await registerClient({ fullName, email, phone, city, password });
     if (!result.ok) {
       setError(result.error);
       return;

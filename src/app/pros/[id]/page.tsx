@@ -1,19 +1,63 @@
+"use client";
+
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { Icon } from "@/components/Icon";
-import { getProfessional } from "@/lib/data";
+import type { Professional } from "@/lib/data";
+import { getMarketplacePro } from "@/lib/marketplace";
 import { HireActions } from "./HireActions";
 
-type ProProfilePageProps = {
-  params: Promise<{ id: string }>;
-};
+export default function ProProfilePage() {
+  const params = useParams<{ id: string }>();
+  const id = params.id;
+  const [pro, setPro] = useState<Professional | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-export default async function ProProfilePage({ params }: ProProfilePageProps) {
-  const { id } = await params;
-  const pro = getProfessional(id);
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const next = await getMarketplacePro(id);
+        if (!cancelled) {
+          setPro(next);
+          if (!next) setError("Professional not found.");
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error ? err.message : "Could not load profile.",
+          );
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
 
-  if (!pro) {
-    notFound();
+  if (loading) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-12 text-on-surface-variant">
+        Loading professional...
+      </main>
+    );
+  }
+
+  if (error || !pro) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-12">
+        <p className="text-status-urgent">{error || "Not found"}</p>
+        <Link href="/pros" className="mt-4 inline-block text-primary underline">
+          Back to marketplace
+        </Link>
+      </main>
+    );
   }
 
   return (
@@ -26,7 +70,7 @@ export default async function ProProfilePage({ params }: ProProfilePageProps) {
       </Link>
 
       <section className="relative mb-6 flex flex-col items-center gap-6 overflow-hidden rounded-xl border border-border-subtle bg-surface-container-lowest p-6 md:mb-12 md:flex-row md:items-start">
-        <div className="absolute right-0 top-0 -z-0 h-32 w-32 rounded-bl-full bg-primary-fixed opacity-20" />
+        <div className="absolute top-0 right-0 -z-0 h-32 w-32 rounded-bl-full bg-primary-fixed opacity-20" />
         <div className="relative z-10 shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -36,7 +80,7 @@ export default async function ProProfilePage({ params }: ProProfilePageProps) {
           />
           {pro.verified ? (
             <div
-              className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface-container-lowest bg-status-success text-on-primary"
+              className="absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface-container-lowest bg-status-success text-on-primary"
               title="Verified Pro"
             >
               <Icon name="verified" filled className="text-[16px]" />
@@ -63,7 +107,7 @@ export default async function ProProfilePage({ params }: ProProfilePageProps) {
           </div>
         </div>
 
-        <div className="relative z-10 grid w-full grid-cols-3 gap-4 border-t border-border-subtle pt-4 text-center md:w-auto md:border-l md:border-t-0 md:pl-6 md:pt-0 md:text-right">
+        <div className="relative z-10 grid w-full grid-cols-3 gap-4 border-t border-border-subtle pt-4 text-center md:w-auto md:border-t-0 md:border-l md:pt-0 md:pl-6 md:text-right">
           <div>
             <div className="font-headline text-2xl font-semibold text-primary">
               {pro.projects}+
@@ -129,31 +173,38 @@ export default async function ProProfilePage({ params }: ProProfilePageProps) {
             <h2 className="mb-3 font-headline text-2xl font-semibold text-primary">
               Portfolio Gallery
             </h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {pro.portfolio.map((item) => (
-                <article
-                  key={item.title}
-                  className="overflow-hidden rounded-xl border border-border-subtle bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md"
-                >
-                  <div className="aspect-[3/2] w-full overflow-hidden bg-surface-container-low">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-sm font-semibold text-on-surface">
-                      {item.title}
-                    </h3>
-                    <p className="text-xs font-medium text-on-surface-variant">
-                      {item.subtitle}
-                    </p>
-                  </div>
-                </article>
-              ))}
-            </div>
+            {pro.portfolio.length === 0 ? (
+              <p className="text-sm text-on-surface-variant">
+                Portfolio photos coming soon. Message this pro to discuss your
+                project.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {pro.portfolio.map((item) => (
+                  <article
+                    key={item.title}
+                    className="overflow-hidden rounded-xl border border-border-subtle bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md"
+                  >
+                    <div className="aspect-[3/2] w-full overflow-hidden bg-surface-container-low">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-sm font-semibold text-on-surface">
+                        {item.title}
+                      </h3>
+                      <p className="text-xs font-medium text-on-surface-variant">
+                        {item.subtitle}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </section>
         </div>
       </div>

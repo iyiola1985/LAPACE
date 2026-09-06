@@ -5,14 +5,17 @@ import { FormEvent, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { useQuote } from "@/components/QuoteProvider";
+import { useAuth } from "@/components/AuthProvider";
 import { getProfessional } from "@/lib/data";
 import { submitQuoteRequest } from "@/lib/admin";
 
 export default function QuotesClient() {
   const searchParams = useSearchParams();
   const proParam = searchParams.get("pro");
+  const { user } = useAuth();
   const { items, removeItem, clear } = useQuote();
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -23,8 +26,9 @@ export default function QuotesClient() {
     return getProfessional(proParam) ?? null;
   }, [proParam]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setSubmitError("");
     const basket = [...items];
     if (linkedPro && !basket.some((item) => item.id === `pro:${linkedPro.id}`)) {
       basket.push({
@@ -33,15 +37,22 @@ export default function QuotesClient() {
         kind: "pro",
       });
     }
-    submitQuoteRequest({
-      fullName: name,
-      email,
-      phone,
-      notes,
-      items: basket,
-    });
-    setSubmitted(true);
-    clear();
+    try {
+      await submitQuoteRequest({
+        fullName: name,
+        email,
+        phone,
+        notes,
+        items: basket,
+        userId: user?.id ?? null,
+      });
+      setSubmitted(true);
+      clear();
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Could not send quote request.",
+      );
+    }
   }
 
   if (submitted) {
@@ -172,6 +183,9 @@ export default function QuotesClient() {
             placeholder="Roof size, location, timeline..."
           />
         </label>
+        {submitError ? (
+          <p className="text-sm text-status-urgent">{submitError}</p>
+        ) : null}
         <button
           type="submit"
           className="w-full rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-container"

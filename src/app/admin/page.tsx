@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import {
   listProProfiles,
-  readQuoteRequests,
+  listQuoteRequests,
   setProStatus,
   updateQuoteStatus,
   type QuoteRequest,
@@ -15,13 +15,24 @@ import type { ProProfile, ProStatus } from "@/lib/auth";
 
 export default function AdminPage() {
   const router = useRouter();
-  const { user, ready, isAdmin, logout } = useAuth();
+  const { user, ready, isAdmin, logout, usingSupabase } = useAuth();
   const [pros, setPros] = useState<ProProfile[]>([]);
   const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
-  function refresh() {
-    setPros(listProProfiles());
-    setQuotes(readQuoteRequests());
+  async function refresh() {
+    setError("");
+    try {
+      const [nextPros, nextQuotes] = await Promise.all([
+        listProProfiles(),
+        listQuoteRequests(),
+      ]);
+      setPros(nextPros);
+      setQuotes(nextQuotes);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load admin data.");
+    }
   }
 
   useEffect(() => {
@@ -34,7 +45,7 @@ export default function AdminPage() {
       router.replace("/account");
       return;
     }
-    refresh();
+    void refresh();
   }, [ready, user, isAdmin, router]);
 
   if (!ready || !user || !isAdmin) {
@@ -45,14 +56,28 @@ export default function AdminPage() {
     );
   }
 
-  function handleProStatus(id: string, status: ProStatus) {
-    setProStatus(id, status);
-    refresh();
+  async function handleProStatus(id: string, status: ProStatus) {
+    setBusy(true);
+    try {
+      await setProStatus(id, status);
+      await refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update pro.");
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function handleQuoteStatus(id: string, status: QuoteRequest["status"]) {
-    updateQuoteStatus(id, status);
-    refresh();
+  async function handleQuoteStatus(id: string, status: QuoteRequest["status"]) {
+    setBusy(true);
+    try {
+      const next = await updateQuoteStatus(id, status);
+      setQuotes(next);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update quote.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   const pending = pros.filter((pro) => pro.status === "pending");
@@ -71,20 +96,24 @@ export default function AdminPage() {
             Operations Dashboard
           </h1>
           <p className="mt-1 text-sm text-on-surface-variant">
-            Verify pros and manage incoming quote requests.
+            Verify pros and manage incoming quote requests
+            {usingSupabase ? " (Supabase)." : " (local demo)."}
           </p>
         </div>
         <button
           type="button"
           onClick={() => {
-            logout();
-            router.push("/");
+            void logout().then(() => router.push("/"));
           }}
           className="border border-border-subtle px-4 py-2 text-xs font-bold uppercase tracking-wide text-on-surface-variant"
         >
           Log out
         </button>
       </div>
+
+      {error ? (
+        <p className="mt-4 text-sm text-status-urgent">{error}</p>
+      ) : null}
 
       <section className="mt-8 grid gap-4 sm:grid-cols-3">
         <div className="border border-border-subtle bg-white p-4">
@@ -145,22 +174,25 @@ export default function AdminPage() {
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={() => handleProStatus(pro.id, "verified")}
-                      className="bg-status-success px-3 py-2 text-xs font-bold uppercase text-white"
+                      disabled={busy}
+                      onClick={() => void handleProStatus(pro.id, "verified")}
+                      className="bg-status-success px-3 py-2 text-xs font-bold uppercase text-white disabled:opacity-60"
                     >
                       Approve
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleProStatus(pro.id, "pending")}
-                      className="border border-border-subtle px-3 py-2 text-xs font-bold uppercase"
+                      disabled={busy}
+                      onClick={() => void handleProStatus(pro.id, "pending")}
+                      className="border border-border-subtle px-3 py-2 text-xs font-bold uppercase disabled:opacity-60"
                     >
                       Pending
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleProStatus(pro.id, "rejected")}
-                      className="bg-status-urgent px-3 py-2 text-xs font-bold uppercase text-white"
+                      disabled={busy}
+                      onClick={() => void handleProStatus(pro.id, "rejected")}
+                      className="bg-status-urgent px-3 py-2 text-xs font-bold uppercase text-white disabled:opacity-60"
                     >
                       Reject
                     </button>
@@ -217,22 +249,25 @@ export default function AdminPage() {
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={() => handleQuoteStatus(quote.id, "contacted")}
-                      className="bg-primary px-3 py-2 text-xs font-bold uppercase text-white"
+                      disabled={busy}
+                      onClick={() => void handleQuoteStatus(quote.id, "contacted")}
+                      className="bg-primary px-3 py-2 text-xs font-bold uppercase text-white disabled:opacity-60"
                     >
                       Mark contacted
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleQuoteStatus(quote.id, "closed")}
-                      className="border border-border-subtle px-3 py-2 text-xs font-bold uppercase"
+                      disabled={busy}
+                      onClick={() => void handleQuoteStatus(quote.id, "closed")}
+                      className="border border-border-subtle px-3 py-2 text-xs font-bold uppercase disabled:opacity-60"
                     >
                       Close
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleQuoteStatus(quote.id, "new")}
-                      className="border border-border-subtle px-3 py-2 text-xs font-bold uppercase"
+                      disabled={busy}
+                      onClick={() => void handleQuoteStatus(quote.id, "new")}
+                      className="border border-border-subtle px-3 py-2 text-xs font-bold uppercase disabled:opacity-60"
                     >
                       Reopen
                     </button>

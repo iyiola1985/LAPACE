@@ -6,9 +6,9 @@ import { Icon } from "./Icon";
 
 const items = [
   { href: "/", label: "Home", icon: "home" },
-  { href: "/materials", label: "Materials", icon: "foundation" },
   { href: "/pros", label: "Pros", icon: "engineering" },
-  { href: "/quotes", label: "Quotes", icon: "request_quote" },
+  { href: "/jobs", label: "Jobs", icon: "work" },
+  { href: "/messages", label: "Chat", icon: "chat" },
   { href: "/account", label: "Account", icon: "person" },
 ] as const;
 

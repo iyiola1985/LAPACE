@@ -52,14 +52,14 @@ export default function RegisterProPage() {
     setStep(3);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     if (!about.trim()) {
       setError("Add a short about section.");
       return;
     }
-    const result = registerPro({
+    const result = await registerPro({
       fullName,
       email,
       phone,

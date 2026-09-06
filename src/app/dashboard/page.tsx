@@ -20,6 +20,10 @@ export default function ClientDashboardPage() {
     }
     if (user.role === "pro") {
       router.replace("/pro/dashboard");
+      return;
+    }
+    if (user.role === "admin") {
+      router.replace("/admin");
     }
   }, [ready, user, router]);
 
@@ -39,7 +43,9 @@ export default function ClientDashboardPage() {
             name={user.fullName}
             avatarUrl={user.avatarUrl}
             editable
-            onChange={(avatarUrl) => updateAvatar(avatarUrl)}
+            onChange={(avatarUrl) => {
+              void updateAvatar(avatarUrl);
+            }}
           />
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
@@ -56,8 +62,7 @@ export default function ClientDashboardPage() {
         <button
           type="button"
           onClick={() => {
-            logout();
-            router.push("/");
+            void logout().then(() => router.push("/"));
           }}
           className="border border-border-subtle px-4 py-2 text-xs font-bold uppercase tracking-wide text-on-surface-variant hover:border-primary hover:text-primary"
         >
@@ -66,6 +71,26 @@ export default function ClientDashboardPage() {
       </div>
 
       <section className="mt-8 grid gap-4 md:grid-cols-2">
+        <Link
+          href="/jobs/new"
+          className="border border-border-subtle bg-white p-5 transition-shadow hover:shadow-md"
+        >
+          <Icon name="work" className="text-primary" />
+          <h2 className="mt-3 font-bold uppercase tracking-wide">Post a Job</h2>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Describe your project and let verified pros message you.
+          </p>
+        </Link>
+        <Link
+          href="/messages"
+          className="border border-border-subtle bg-white p-5 transition-shadow hover:shadow-md"
+        >
+          <Icon name="chat" className="text-primary" />
+          <h2 className="mt-3 font-bold uppercase tracking-wide">Messages</h2>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Continue chats with pros about quotes and hire requests.
+          </p>
+        </Link>
         <Link
           href="/quotes"
           className="border border-border-subtle bg-white p-5 transition-shadow hover:shadow-md"
@@ -101,7 +126,9 @@ export default function ClientDashboardPage() {
             avatarUrl={user.avatarUrl}
             size="md"
             editable
-            onChange={(avatarUrl) => updateAvatar(avatarUrl)}
+            onChange={(avatarUrl) => {
+              void updateAvatar(avatarUrl);
+            }}
           />
           <ul className="space-y-1 text-sm text-on-surface-variant">
             <li>Phone: {user.phone}</li>

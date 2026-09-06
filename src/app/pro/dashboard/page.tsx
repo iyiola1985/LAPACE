@@ -19,6 +19,10 @@ export default function ProDashboardPage() {
     }
     if (user.role === "client") {
       router.replace("/dashboard");
+      return;
+    }
+    if (user.role === "admin") {
+      router.replace("/admin");
     }
   }, [ready, user, router]);
 
@@ -52,7 +56,9 @@ export default function ProDashboardPage() {
             name={user.fullName}
             avatarUrl={user.avatarUrl}
             editable
-            onChange={(avatarUrl) => updateAvatar(avatarUrl)}
+            onChange={(avatarUrl) => {
+              void updateAvatar(avatarUrl);
+            }}
           />
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
@@ -74,8 +80,7 @@ export default function ProDashboardPage() {
         <button
           type="button"
           onClick={() => {
-            logout();
-            router.push("/");
+            void logout().then(() => router.push("/"));
           }}
           className="border border-border-subtle px-4 py-2 text-xs font-bold uppercase tracking-wide text-on-surface-variant hover:border-primary hover:text-primary"
         >
@@ -84,16 +89,29 @@ export default function ProDashboardPage() {
       </div>
 
       <section className="mt-8 grid gap-4 md:grid-cols-2">
-        <div className="border border-border-subtle bg-white p-5">
+        <Link
+          href="/jobs"
+          className="border border-border-subtle bg-white p-5 transition-shadow hover:shadow-md"
+        >
           <Icon name="work" className="text-primary" />
           <h2 className="mt-3 font-bold uppercase tracking-wide">Job board</h2>
           <p className="mt-1 text-sm text-on-surface-variant">
-            Incoming client jobs will appear here after verification.
+            Browse open client jobs and message homeowners.
           </p>
-        </div>
+        </Link>
+        <Link
+          href="/messages"
+          className="border border-border-subtle bg-white p-5 transition-shadow hover:shadow-md"
+        >
+          <Icon name="chat" className="text-primary" />
+          <h2 className="mt-3 font-bold uppercase tracking-wide">Messages</h2>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Reply to clients who want to hire you.
+          </p>
+        </Link>
         <Link
           href="/materials"
-          className="border border-border-subtle bg-white p-5 transition-shadow hover:shadow-md"
+          className="border border-border-subtle bg-white p-5 transition-shadow hover:shadow-md md:col-span-2"
         >
           <Icon name="architecture" className="text-primary" />
           <h2 className="mt-3 font-bold uppercase tracking-wide">
@@ -113,7 +131,9 @@ export default function ProDashboardPage() {
             avatarUrl={user.avatarUrl}
             size="md"
             editable
-            onChange={(avatarUrl) => updateAvatar(avatarUrl)}
+            onChange={(avatarUrl) => {
+              void updateAvatar(avatarUrl);
+            }}
           />
           <div className="min-w-0 flex-1">
             <p className="text-sm text-on-surface-variant">{user.about}</p>

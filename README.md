@@ -1,6 +1,6 @@
 # LAPACE Roofing Marketplace
 
-MVP web app for Lapace Aluminium marketplace (pros, materials, quotes, auth).
+MVP web app for Lapace Aluminium marketplace (pros, materials, quotes, jobs, messaging).
 
 ## Run locally
 
@@ -13,41 +13,39 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## What's included
 
-- Home, pros directory, materials catalog, quote basket
-- Client vs Pro registration + login (localStorage demo auth)
-- Profile photo crop/zoom editor
-- Client + Pro dashboards
-- **Admin ops** at `/admin` (pro approve/reject + quote inbox)
-- Supabase schema ready in `supabase/schema.sql`
+- Marketplace of verified pros (seed + approved registrations)
+- Client vs Pro registration + login
+- Job board (clients post, pros browse & message)
+- In-app messaging + hire from chat
+- Quotes basket, admin verification, profile photo cropper
+- Supabase-ready schema (`supabase/schema.sql`) with localStorage fallback
 
-## Demo admin login
+## Local demo logins (no Supabase env)
 
-On first load the app seeds:
+- Client: `client@lapacealuminium.com` / `client123`
+- Pro (verified): `pro@lapacealuminium.com` / `pro123`
+- Admin: `admin@lapacealuminium.com` / `admin123`
 
-- Email: `admin@lapacealuminium.com`
-- Password: `admin123`
+## Try the new flows
 
-Then open `/admin`.
+1. Log in as **client** → Post a job at `/jobs/new` → open `/messages` when a pro replies  
+2. Log in as **pro** → `/jobs` → Message Client → chat at `/messages`  
+3. From `/pros`, open a profile → **Message Pro**  
+4. In a job-linked chat, client can **Hire this Pro**
 
-Override admin emails with `NEXT_PUBLIC_ADMIN_EMAILS` in `.env.local`.
-
-## Supabase setup (Phase A → production)
+## Supabase setup
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Copy `.env.example` → `.env.local` and fill URL + anon key
-3. Run `supabase/schema.sql` in the SQL editor
-4. Promote your admin user after signup:
+2. Copy `.env.example` → `.env.local` (and Vercel env) with URL + anon key
+3. Run the full `supabase/schema.sql` in the SQL editor
+4. Register users, approve pros in `/admin`, promote admin:
 
 ```sql
-update public.profiles set role = 'admin' where email = 'admin@lapacealuminium.com';
+update public.profiles set role = 'admin' where email = 'your@email.com';
 ```
-
-Until env vars are set, the app keeps using browser localStorage (good for demos).
 
 ## Still next
 
-- Wire auth/quotes fully to Supabase (replace localStorage)
 - Email/WhatsApp notifications
-- Job board + messaging
 - Payments (Paystack/Flutterwave)
 - Materials CMS

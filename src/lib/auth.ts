@@ -1,4 +1,4 @@
-export type UserRole = "client" | "pro";
+export type UserRole = "client" | "pro" | "admin";
 
 export type ProStatus = "pending" | "verified" | "rejected";
 
@@ -11,6 +11,17 @@ export type ProService =
 
 export type ClientProfile = {
   role: "client";
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  city: string;
+  avatarUrl?: string;
+  createdAt: string;
+};
+
+export type AdminProfile = {
+  role: "admin";
   id: string;
   fullName: string;
   email: string;
@@ -36,7 +47,7 @@ export type ProProfile = {
   createdAt: string;
 };
 
-export type UserProfile = ClientProfile | ProProfile;
+export type UserProfile = ClientProfile | ProProfile | AdminProfile;
 
 export type StoredUser = {
   profile: UserProfile;
@@ -110,7 +121,12 @@ export function findUserByEmail(email: string) {
   );
 }
 
+export function isAdminUser(profile: UserProfile | null | undefined) {
+  if (!profile) return false;
+  return profile.role === "admin" || isAdminEmail(profile.email);
+}
+
 export function dashboardPathFor(profile: UserProfile) {
-  if (isAdminEmail(profile.email)) return "/admin";
+  if (isAdminUser(profile)) return "/admin";
   return profile.role === "pro" ? "/pro/dashboard" : "/dashboard";
 }

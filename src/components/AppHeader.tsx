@@ -18,7 +18,8 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
     { href: "/", label: "Home" },
     { href: "/materials", label: "Materials" },
     { href: "/pros", label: "Marketplace" },
-    { href: "/quotes", label: "Quotes" },
+    { href: "/jobs", label: "Jobs" },
+    { href: "/messages", label: "Messages" },
     user ? { href: "/account", label: "Account" } : { href: "/register", label: "Join" },
   ] as const;
 

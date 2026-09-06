@@ -48,7 +48,9 @@ export default function AccountPage() {
               name={user.fullName}
               avatarUrl={user.avatarUrl}
               editable
-              onChange={(avatarUrl) => updateAvatar(avatarUrl)}
+              onChange={(avatarUrl) => {
+                void updateAvatar(avatarUrl);
+              }}
             />
             <div>
               <h1 className="text-2xl font-bold text-on-background">
@@ -71,7 +73,9 @@ export default function AccountPage() {
             </Link>
             <button
               type="button"
-              onClick={logout}
+              onClick={() => {
+              void logout();
+            }}
               className="border border-border-subtle px-6 py-3 text-xs font-bold uppercase tracking-[0.12em] text-on-surface-variant hover:border-primary hover:text-primary"
             >
               Log out
