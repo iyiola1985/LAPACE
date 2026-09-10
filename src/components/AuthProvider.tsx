@@ -13,6 +13,7 @@ import {
   createId,
   dashboardPathFor,
   findUserByEmail,
+  isAdminEmail,
   isAdminUser,
   readSessionEmail,
   readUsers,
@@ -160,12 +161,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { ok: false, error: "Supabase is not configured." };
         }
 
+        const signupRole = isAdminEmail(email) ? "admin" : "client";
         const { data, error } = await supabase.auth.signUp({
           email,
           password: input.password,
           options: {
             data: {
-              role: "client",
+              role: signupRole,
               full_name: input.fullName.trim(),
               phone: input.phone.trim(),
               city: input.city.trim(),
@@ -183,7 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .from("profiles")
           .upsert({
             id: data.user.id,
-            role: "client",
+            role: signupRole,
             full_name: input.fullName.trim(),
             email,
             phone: input.phone.trim(),

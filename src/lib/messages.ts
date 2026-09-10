@@ -1,4 +1,5 @@
 import { createId, readUsers } from "@/lib/auth";
+import { assertNoContactDetails } from "@/lib/contactGuard";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export type Conversation = {
@@ -312,6 +313,7 @@ export async function sendMessage(input: {
 }): Promise<ChatMessage> {
   const body = input.body.trim();
   if (!body) throw new Error("Message cannot be empty.");
+  assertNoContactDetails(body);
 
   const supabase = getSupabaseBrowserClient();
   if (!supabase) {

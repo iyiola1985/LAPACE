@@ -5,8 +5,8 @@ import { FilterChips } from "@/components/FilterChips";
 import { Icon } from "@/components/Icon";
 import { ProCard } from "@/components/ProCard";
 import { proFilters, type ProFilter, type Professional } from "@/lib/data";
-import { listMarketplacePros } from "@/lib/marketplace";
 import { useAuth } from "@/components/AuthProvider";
+import { countVerifiedPros, listMarketplacePros } from "@/lib/marketplace";
 
 export default function ProsPage() {
   const { usingSupabase } = useAuth();
@@ -14,6 +14,7 @@ export default function ProsPage() {
   const filterOptions = ["All", ...proFilters] as Array<"All" | ProFilter>;
   const [filter, setFilter] = useState<"All" | ProFilter>("All");
   const [pros, setPros] = useState<Professional[]>([]);
+  const [liveCount, setLiveCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -23,8 +24,14 @@ export default function ProsPage() {
       setLoading(true);
       setError("");
       try {
-        const next = await listMarketplacePros();
-        if (!cancelled) setPros(next);
+        const [next, verified] = await Promise.all([
+          listMarketplacePros(),
+          countVerifiedPros(),
+        ]);
+        if (!cancelled) {
+          setPros(next);
+          setLiveCount(verified);
+        }
       } catch (err) {
         if (!cancelled) {
           setError(
@@ -62,7 +69,9 @@ export default function ProsPage() {
         </h1>
         <p className="mb-6 text-center text-sm text-on-surface-variant md:text-left">
           {usingSupabase
-            ? "Showing Lapace-verified pros from the live directory."
+            ? liveCount > 0
+              ? "Showing Lapace-verified pros from the live directory."
+              : "Sample listings shown until Admin verifies live contractors."
             : "Showing seed pros plus locally verified registrations."}
         </p>
         <div className="relative mx-auto w-full max-w-3xl md:mx-0">

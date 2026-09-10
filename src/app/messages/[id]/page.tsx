@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { PrimaryButton } from "@/components/AuthForm";
+import { redactContactDetails } from "@/lib/contactGuard";
 import { updateJobStatus } from "@/lib/jobs";
 import {
   getConversation,
@@ -190,7 +191,7 @@ export default function ConversationPage() {
                     : "max-w-[80%] border border-border-subtle bg-white px-3 py-2 text-sm"
                 }
               >
-                <p>{message.body}</p>
+                <p>{redactContactDetails(message.body)}</p>
                 <p
                   className={
                     mine

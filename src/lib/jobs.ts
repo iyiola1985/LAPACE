@@ -1,4 +1,5 @@
 import { createId, readUsers } from "@/lib/auth";
+import { assertNoContactDetails } from "@/lib/contactGuard";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export type JobStatus = "open" | "hired" | "closed";
@@ -96,6 +97,9 @@ export async function createJob(input: {
   budget: string;
   service: string;
 }): Promise<JobPost> {
+  assertNoContactDetails(
+    `${input.title} ${input.description} ${input.city} ${input.budget}`,
+  );
   const supabase = getSupabaseBrowserClient();
   if (!supabase) {
     const job: JobPost = {

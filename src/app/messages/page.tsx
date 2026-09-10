@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
+import { redactContactDetails } from "@/lib/contactGuard";
 import {
   listConversationsForUser,
   type Conversation,
@@ -88,7 +89,9 @@ export default function MessagesInboxPage() {
                         {other}
                       </h2>
                       <p className="mt-1 line-clamp-1 text-sm text-on-surface-variant">
-                        {item.lastMessage || "No messages yet"}
+                        {item.lastMessage
+                          ? redactContactDetails(item.lastMessage)
+                          : "No messages yet"}
                       </p>
                     </div>
                     <span className="text-xs text-on-surface-variant">

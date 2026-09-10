@@ -52,9 +52,9 @@ export function professionalFromProProfile(pro: ProProfile): Professional {
         icon: "verified",
       },
       {
-        title: "Contact",
-        subtitle: pro.phone || pro.email,
-        icon: "call",
+        title: "Message on Lapace",
+        subtitle: "Chat inside the app. Phone and email stay private.",
+        icon: "chat",
       },
       {
         title: "Service area",
@@ -66,25 +66,35 @@ export function professionalFromProProfile(pro: ProProfile): Professional {
   };
 }
 
+async function listVerifiedFromSupabase(): Promise<Professional[]> {
+  const supabase = getSupabaseBrowserClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("role", "pro")
+    .eq("pro_status", "verified")
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+
+  return (
+    (data as ProfileRow[] | null)
+      ?.map(profileFromRow)
+      .filter((profile): profile is ProProfile => profile.role === "pro")
+      .map(professionalFromProProfile) ?? []
+  );
+}
+
 export async function listMarketplacePros(): Promise<Professional[]> {
   const supabase = getSupabaseBrowserClient();
 
   if (supabase) {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("role", "pro")
-      .eq("pro_status", "verified")
-      .order("created_at", { ascending: false });
-
-    if (error) throw new Error(error.message);
-
-    return (
-      (data as ProfileRow[] | null)
-        ?.map(profileFromRow)
-        .filter((profile): profile is ProProfile => profile.role === "pro")
-        .map(professionalFromProProfile) ?? []
-    );
+    const verified = await listVerifiedFromSupabase();
+    // Keep the marketplace usable until Lapace verifies real contractors.
+    if (verified.length === 0) return professionals;
+    return verified;
   }
 
   const registered = (await listProProfiles())
@@ -123,4 +133,13 @@ export async function getMarketplacePro(
     (pro) => pro.id === id && pro.status === "verified",
   );
   return registered ? professionalFromProProfile(registered) : null;
+}
+
+export async function countVerifiedPros(): Promise<number> {
+  const supabase = getSupabaseBrowserClient();
+  if (!supabase) {
+    return (await listProProfiles()).filter((pro) => pro.status === "verified")
+      .length;
+  }
+  return (await listVerifiedFromSupabase()).length;
 }

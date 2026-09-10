@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { ProCardCompact } from "@/components/ProCardCompact";
-import { materials, professionals, projects } from "@/lib/data";
+import { FeaturedPros } from "@/components/FeaturedPros";
+import { materials, projects } from "@/lib/data";
 
 export default function HomePage() {
-  const featuredPros = professionals.slice(0, 3);
   const featuredAluminum = materials.find((m) => m.id === "aluminum-coils");
   const featuredStone = materials.find((m) => m.id === "stone-coated-tiles");
 
@@ -45,31 +44,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-white px-4 py-14 md:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-8 flex items-end justify-between">
-            <div>
-              <h2 className="accent-underline text-2xl font-bold uppercase tracking-wide text-on-background md:text-3xl">
-                Verified Professionals
-              </h2>
-              <p className="mt-4 text-base text-on-surface-variant">
-                Top-rated contractors ready for your project.
-              </p>
-            </div>
-            <Link
-              href="/pros"
-              className="hidden text-xs font-bold uppercase tracking-[0.12em] text-primary hover:underline md:inline-flex"
-            >
-              View Directory →
-            </Link>
-          </div>
-          <div className="scrollbar-hide flex snap-x gap-4 overflow-x-auto pb-4">
-            {featuredPros.map((pro) => (
-              <ProCardCompact key={pro.id} pro={pro} />
-            ))}
-          </div>
-        </div>
-      </section>
+      <FeaturedPros />
 
       <section className="bg-surface-container-low px-4 py-14 md:px-8">
         <div className="mx-auto max-w-7xl">

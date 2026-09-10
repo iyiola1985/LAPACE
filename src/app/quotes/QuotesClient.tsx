@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { useQuote } from "@/components/QuoteProvider";
 import { useAuth } from "@/components/AuthProvider";
-import { getProfessional } from "@/lib/data";
 import { submitQuoteRequest } from "@/lib/admin";
+import type { Professional } from "@/lib/data";
+import { getMarketplacePro } from "@/lib/marketplace";
 
 export default function QuotesClient() {
   const searchParams = useSearchParams();
@@ -20,10 +21,20 @@ export default function QuotesClient() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
+  const [linkedPro, setLinkedPro] = useState<Professional | null>(null);
 
-  const linkedPro = useMemo(() => {
-    if (!proParam) return null;
-    return getProfessional(proParam) ?? null;
+  useEffect(() => {
+    if (!proParam) {
+      setLinkedPro(null);
+      return;
+    }
+    let cancelled = false;
+    void getMarketplacePro(proParam).then((pro) => {
+      if (!cancelled) setLinkedPro(pro);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [proParam]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
