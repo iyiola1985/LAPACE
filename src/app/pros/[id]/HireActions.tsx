@@ -49,6 +49,11 @@ export function HireActions({ proId, proName }: HireActionsProps) {
     }
   }
 
+  function handleQuoteRequest() {
+    addItem({ id: `pro:${proId}`, name: proName, kind: "pro" });
+    router.push(`/quotes?pro=${encodeURIComponent(proId)}`);
+  }
+
   return (
     <div className="fixed bottom-20 left-0 z-40 flex w-full items-center justify-end gap-4 border-t border-border-subtle bg-white p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] md:bottom-0">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-end gap-2 px-4 md:px-8">
@@ -64,12 +69,10 @@ export function HireActions({ proId, proName }: HireActionsProps) {
           </button>
           <button
             type="button"
-            onClick={() =>
-              addItem({ id: `pro:${proId}`, name: proName, kind: "pro" })
-            }
+            onClick={handleQuoteRequest}
             className="bg-primary px-6 py-3 text-xs font-bold uppercase tracking-[0.1em] text-white shadow-sm transition-colors hover:bg-primary-container"
           >
-            Hire for Project
+            Request Quote
           </button>
         </div>
       </div>

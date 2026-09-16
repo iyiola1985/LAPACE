@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { Professional } from "@/lib/data";
 import { useQuote } from "./QuoteProvider";
 import { Icon } from "./Icon";
@@ -10,7 +11,13 @@ type ProCardProps = {
 };
 
 export function ProCard({ pro }: ProCardProps) {
+  const router = useRouter();
   const { addItem } = useQuote();
+
+  function requestQuote() {
+    addItem({ id: `pro:${pro.id}`, name: pro.name, kind: "pro" });
+    router.push(`/quotes?pro=${encodeURIComponent(pro.id)}`);
+  }
 
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-border-subtle bg-surface-container-lowest transition-shadow duration-300 hover:shadow-lg">
@@ -77,9 +84,7 @@ export function ProCard({ pro }: ProCardProps) {
           </Link>
           <button
             type="button"
-            onClick={() =>
-              addItem({ id: `pro:${pro.id}`, name: pro.name, kind: "pro" })
-            }
+            onClick={requestQuote}
             className="flex-1 bg-primary py-2 text-xs font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-container"
           >
             Request Quote
