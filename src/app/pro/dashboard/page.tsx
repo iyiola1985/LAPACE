@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
+import { ProPortfolioManager } from "@/components/ProPortfolioManager";
 import { useAuth } from "@/components/AuthProvider";
 
 export default function ProDashboardPage() {
@@ -145,6 +146,8 @@ export default function ProDashboardPage() {
           </div>
         </div>
       </section>
+
+      <ProPortfolioManager proId={user.id} />
     </main>
   );
 }

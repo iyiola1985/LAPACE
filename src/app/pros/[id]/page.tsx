@@ -95,6 +95,12 @@ export default function ProProfilePage() {
           <p className="mb-4 flex items-center justify-center gap-2 text-lg text-on-surface-variant md:justify-start">
             {pro.specialty}
           </p>
+          {pro.location ? (
+            <p className="mb-4 flex items-center justify-center gap-1 text-sm font-semibold text-on-surface-variant md:justify-start">
+              <Icon name="location_on" className="text-base" />
+              {pro.location}
+            </p>
+          ) : null}
           <div className="mb-3 flex flex-wrap justify-center gap-2 md:justify-start">
             {pro.tags.map((tag) => (
               <span

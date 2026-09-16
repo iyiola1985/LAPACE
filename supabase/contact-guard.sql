@@ -50,16 +50,25 @@ begin
 end;
 $$;
 
-create or replace function public.reject_contact_info()
+create or replace function public.reject_message_contact_info()
 returns trigger
 language plpgsql
 as $$
 begin
-  if tg_table_name = 'messages' and public.contains_contact_info(new.body) then
+  if public.contains_contact_info(new.body) then
     raise exception 'Phone numbers and emails are not allowed. Keep the conversation in Lapace chat.';
   end if;
 
-  if tg_table_name = 'jobs' and public.contains_contact_info(
+  return new;
+end;
+$$;
+
+create or replace function public.reject_job_contact_info()
+returns trigger
+language plpgsql
+as $$
+begin
+  if public.contains_contact_info(
     coalesce(new.title, '') || ' ' || coalesce(new.description, '') || ' ' || coalesce(new.city, '') || ' ' || coalesce(new.budget, '')
   ) then
     raise exception 'Phone numbers and emails are not allowed in job posts. Keep contact inside Lapace chat.';
@@ -72,9 +81,9 @@ $$;
 drop trigger if exists messages_reject_contact on public.messages;
 create trigger messages_reject_contact
   before insert or update on public.messages
-  for each row execute function public.reject_contact_info();
+  for each row execute function public.reject_message_contact_info();
 
 drop trigger if exists jobs_reject_contact on public.jobs;
 create trigger jobs_reject_contact
   before insert or update on public.jobs
-  for each row execute function public.reject_contact_info();
+  for each row execute function public.reject_job_contact_info();

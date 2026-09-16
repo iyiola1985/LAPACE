@@ -29,6 +29,12 @@ export function ProCard({ pro }: ProCardProps) {
             <h3 className="text-xl font-bold uppercase tracking-wide text-on-background">
               {pro.name}
             </h3>
+            {pro.location ? (
+              <p className="flex items-center gap-1 text-xs text-on-surface-variant">
+                <Icon name="location_on" className="text-sm" />
+                {pro.location}
+              </p>
+            ) : null}
             <div className="flex items-center gap-1 text-on-surface-variant">
               <Icon
                 name="star"

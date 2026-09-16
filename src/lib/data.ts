@@ -15,6 +15,7 @@ export type Professional = {
   id: string;
   name: string;
   specialty: string;
+  location?: string;
   rating: number;
   reviews: number;
   verified: boolean;

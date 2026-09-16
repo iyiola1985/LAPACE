@@ -101,12 +101,16 @@ function conversationFromRow(row: ConversationRow): Conversation {
 
 export async function listConversationsForUser(
   userId: string,
+  includeAll = false,
 ): Promise<Conversation[]> {
   const supabase = getSupabaseBrowserClient();
   if (!supabase) {
     const messages = readLocalMessages();
     return readLocalConversations()
-      .filter((item) => item.clientId === userId || item.proId === userId)
+      .filter(
+        (item) =>
+          includeAll || item.clientId === userId || item.proId === userId,
+      )
       .map((item) => {
         const last = messages
           .filter((message) => message.conversationId === item.id)
@@ -120,13 +124,19 @@ export async function listConversationsForUser(
       .sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
   }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("conversations")
     .select(
       "*, client:profiles!conversations_client_id_fkey(full_name, company_name), pro:profiles!conversations_pro_id_fkey(full_name, company_name)",
-    )
-    .or(`client_id.eq.${userId},pro_id.eq.${userId}`)
-    .order("updated_at", { ascending: false });
+    );
+
+  if (!includeAll) {
+    query = query.or(`client_id.eq.${userId},pro_id.eq.${userId}`);
+  }
+
+  const { data, error } = await query.order("updated_at", {
+    ascending: false,
+  });
 
   if (error) throw new Error(error.message);
 
@@ -259,25 +269,35 @@ export async function openConversation(input: {
     return conversation;
   }
 
-  let query = supabase
-    .from("conversations")
-    .select(
-      "*, client:profiles!conversations_client_id_fkey(full_name, company_name), pro:profiles!conversations_pro_id_fkey(full_name, company_name)",
-    )
-    .eq("client_id", input.clientId)
-    .eq("pro_id", input.proId);
+  const supabaseClient = supabase;
 
-  query = input.jobId
-    ? query.eq("job_id", input.jobId)
-    : query.is("job_id", null);
+  async function findExistingConversation() {
+    let query = supabaseClient
+      .from("conversations")
+      .select(
+        "*, client:profiles!conversations_client_id_fkey(full_name, company_name), pro:profiles!conversations_pro_id_fkey(full_name, company_name)",
+      )
+      .eq("client_id", input.clientId)
+      .eq("pro_id", input.proId);
 
-  const { data: existing } = await query.maybeSingle();
+    query = input.jobId
+      ? query.eq("job_id", input.jobId)
+      : query.is("job_id", null);
+
+    return query.maybeSingle();
+  }
+
+  const { data: existing, error: lookupError } =
+    await findExistingConversation();
+  if (lookupError) {
+    throw new Error(lookupError.message);
+  }
 
   let conversation: Conversation;
   if (existing) {
     conversation = conversationFromRow(existing as ConversationRow);
   } else {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from("conversations")
       .insert({
         client_id: input.clientId,
@@ -289,10 +309,20 @@ export async function openConversation(input: {
       )
       .single();
 
-    if (error || !data) {
+    if (error?.code === "23505") {
+      const { data: concurrent, error: retryError } =
+        await findExistingConversation();
+      if (retryError || !concurrent) {
+        throw new Error(
+          retryError?.message ?? "Could not reopen the conversation.",
+        );
+      }
+      conversation = conversationFromRow(concurrent as ConversationRow);
+    } else if (error || !data) {
       throw new Error(error?.message ?? "Could not start conversation.");
+    } else {
+      conversation = conversationFromRow(data as ConversationRow);
     }
-    conversation = conversationFromRow(data as ConversationRow);
   }
 
   if (input.initialMessage) {

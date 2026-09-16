@@ -8,7 +8,7 @@ const items = [
   { href: "/", label: "Home", icon: "home" },
   { href: "/pros", label: "Pros", icon: "engineering" },
   { href: "/jobs", label: "Jobs", icon: "work" },
-  { href: "/messages", label: "Chat", icon: "chat" },
+  { href: "/quotes", label: "Quotes", icon: "request_quote" },
   { href: "/account", label: "Account", icon: "person" },
 ] as const;
 

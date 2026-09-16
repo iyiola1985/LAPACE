@@ -18,6 +18,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - Job board (clients post, pros browse & message)
 - In-app messaging + hire from chat
 - Quotes basket, admin verification, profile photo cropper
+- Multi-image Pro portfolios stored in Supabase Storage
 - Supabase-ready schema (`supabase/schema.sql`) with localStorage fallback
 
 ## Local demo logins (no Supabase env)
@@ -37,8 +38,9 @@ Open [http://localhost:3000](http://localhost:3000).
 
 1. Create a project at [supabase.com](https://supabase.com)
 2. Copy `.env.example` → `.env.local` (and Vercel env) with URL + anon key
-3. Run the full `supabase/schema.sql` in the SQL editor
-4. Register users, approve pros in `/admin`, promote admin:
+3. Run `supabase/schema.sql` in the SQL editor
+4. Run `supabase/portfolio.sql` to create portfolio storage and policies
+5. Register users, approve pros in `/admin`, promote admin:
 
 ```sql
 update public.profiles set role = 'admin' where email = 'your@email.com';

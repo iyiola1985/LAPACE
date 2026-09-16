@@ -54,9 +54,6 @@ export default function ClientDashboardPage() {
             <h1 className="mt-2 text-2xl font-bold text-on-background md:text-3xl">
               Welcome, {user.fullName}
             </h1>
-            <p className="mt-1 text-sm text-on-surface-variant">
-              {user.city} · {user.email}
-            </p>
           </div>
         </div>
         <button
@@ -130,11 +127,6 @@ export default function ClientDashboardPage() {
               void updateAvatar(avatarUrl);
             }}
           />
-          <ul className="space-y-1 text-sm text-on-surface-variant">
-            <li>Phone: {user.phone}</li>
-            <li>Email: {user.email}</li>
-            <li>Location: {user.city}</li>
-          </ul>
         </div>
         <PrimaryButton
           type="button"

@@ -6,6 +6,11 @@ import {
   type Professional,
 } from "@/lib/data";
 import { listProProfiles } from "@/lib/admin";
+import {
+  listPortfolio,
+  type PortfolioItem,
+  type PortfolioRow,
+} from "@/lib/portfolio";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { profileFromRow } from "@/lib/supabase/mappers";
 import type { ProfileRow } from "@/lib/supabase/types";
@@ -25,7 +30,10 @@ function asFilters(services: ProService[]): ProFilter[] {
   );
 }
 
-export function professionalFromProProfile(pro: ProProfile): Professional {
+export function professionalFromProProfile(
+  pro: ProProfile,
+  portfolio: PortfolioItem[] = [],
+): Professional {
   const filters = asFilters(pro.services);
   return {
     id: pro.id,
@@ -34,6 +42,7 @@ export function professionalFromProProfile(pro: ProProfile): Professional {
       filters.length > 0
         ? `${filters.join(" · ")} specialist`
         : "Roofing professional",
+    location: pro.city || "Nigeria",
     rating: 5,
     reviews: 0,
     verified: pro.status === "verified",
@@ -62,7 +71,11 @@ export function professionalFromProProfile(pro: ProProfile): Professional {
         icon: "location_on",
       },
     ],
-    portfolio: [],
+    portfolio: portfolio.map((item) => ({
+      title: item.title || "Roofing project",
+      subtitle: item.description || "Completed project",
+      image: item.imageUrl,
+    })),
   };
 }
 
@@ -79,11 +92,47 @@ async function listVerifiedFromSupabase(): Promise<Professional[]> {
 
   if (error) throw new Error(error.message);
 
-  return (
+  const profiles =
     (data as ProfileRow[] | null)
       ?.map(profileFromRow)
-      .filter((profile): profile is ProProfile => profile.role === "pro")
-      .map(professionalFromProProfile) ?? []
+      .filter((profile): profile is ProProfile => profile.role === "pro") ?? [];
+
+  if (profiles.length === 0) return [];
+
+  const { data: portfolioData, error: portfolioError } = await supabase
+    .from("pro_portfolio")
+    .select("*")
+    .in(
+      "pro_id",
+      profiles.map((profile) => profile.id),
+    )
+    .order("position", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (portfolioError) throw new Error(portfolioError.message);
+
+  const portfolioByPro = new Map<string, PortfolioItem[]>();
+  for (const row of (portfolioData as PortfolioRow[] | null) ?? []) {
+    const item: PortfolioItem = {
+      id: row.id,
+      proId: row.pro_id,
+      imageUrl: row.image_url,
+      storagePath: row.storage_path,
+      title: row.title,
+      description: row.description,
+      position: row.position,
+      createdAt: row.created_at,
+    };
+    const current = portfolioByPro.get(item.proId) ?? [];
+    current.push(item);
+    portfolioByPro.set(item.proId, current);
+  }
+
+  return profiles.map((profile) =>
+    professionalFromProProfile(
+      profile,
+      portfolioByPro.get(profile.id) ?? [],
+    ),
   );
 }
 
@@ -99,7 +148,7 @@ export async function listMarketplacePros(): Promise<Professional[]> {
 
   const registered = (await listProProfiles())
     .filter((pro) => pro.status === "verified")
-    .map(professionalFromProProfile);
+    .map((pro) => professionalFromProProfile(pro));
 
   const seedIds = new Set(professionals.map((pro) => pro.id));
   const extras = registered.filter((pro) => !seedIds.has(pro.id));
@@ -126,7 +175,10 @@ export async function getMarketplacePro(
     if (!data) return null;
 
     const profile = profileFromRow(data as ProfileRow);
-    return profile.role === "pro" ? professionalFromProProfile(profile) : null;
+    if (profile.role !== "pro") return null;
+
+    const portfolio = await listPortfolio(profile.id);
+    return professionalFromProProfile(profile, portfolio);
   }
 
   const registered = (await listProProfiles()).find(

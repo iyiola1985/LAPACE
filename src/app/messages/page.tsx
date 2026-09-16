@@ -28,7 +28,10 @@ export default function MessagesInboxPage() {
     void (async () => {
       setLoading(true);
       try {
-        const next = await listConversationsForUser(user.id);
+        const next = await listConversationsForUser(
+          user.id,
+          user.role === "admin",
+        );
         if (!cancelled) setItems(next);
       } catch (err) {
         if (!cancelled) {
@@ -57,10 +60,12 @@ export default function MessagesInboxPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-8 md:px-8 md:py-10">
       <h1 className="accent-underline text-2xl font-bold uppercase tracking-wide md:text-3xl">
-        Messages
+        {user.role === "admin" ? "Admin Message Inbox" : "Messages"}
       </h1>
       <p className="mt-3 text-sm text-on-surface-variant">
-        Chat with clients and pros about jobs and hire requests.
+        {user.role === "admin"
+          ? "Review conversations between clients and professionals."
+          : "Chat with clients and pros about jobs and hire requests."}
       </p>
 
       {error ? <p className="mt-4 text-sm text-status-urgent">{error}</p> : null}

@@ -100,15 +100,23 @@ export default function AdminPage() {
             {usingSupabase ? " (Supabase)." : " (local demo)."}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            void logout().then(() => router.push("/"));
-          }}
-          className="border border-border-subtle px-4 py-2 text-xs font-bold uppercase tracking-wide text-on-surface-variant"
-        >
-          Log out
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/messages"
+            className="bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wide text-white"
+          >
+            Message Inbox
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              void logout().then(() => router.push("/"));
+            }}
+            className="border border-border-subtle px-4 py-2 text-xs font-bold uppercase tracking-wide text-on-surface-variant"
+          >
+            Log out
+          </button>
+        </div>
       </div>
 
       {error ? (
