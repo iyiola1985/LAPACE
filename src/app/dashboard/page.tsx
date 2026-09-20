@@ -54,6 +54,9 @@ export default function ClientDashboardPage() {
             <h1 className="mt-2 text-2xl font-bold text-on-background md:text-3xl">
               Welcome, {user.fullName}
             </h1>
+            <p className="mt-1 text-sm text-on-surface-variant">
+              Hire verified companies and keep every deal on Lapace.
+            </p>
           </div>
         </div>
         <button
@@ -75,7 +78,19 @@ export default function ClientDashboardPage() {
           <Icon name="work" className="text-primary" />
           <h2 className="mt-3 font-bold uppercase tracking-wide">Post a Job</h2>
           <p className="mt-1 text-sm text-on-surface-variant">
-            Describe your project and let verified pros message you.
+            Describe your project so verified pros can submit offers.
+          </p>
+        </Link>
+        <Link
+          href="/deals"
+          className="border border-border-subtle bg-white p-5 transition-shadow hover:shadow-md"
+        >
+          <Icon name="request_quote" className="text-primary" />
+          <h2 className="mt-3 font-bold uppercase tracking-wide">
+            Offers & deals
+          </h2>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Accept offers and track active deals on-site.
           </p>
         </Link>
         <Link
@@ -85,19 +100,19 @@ export default function ClientDashboardPage() {
           <Icon name="chat" className="text-primary" />
           <h2 className="mt-3 font-bold uppercase tracking-wide">Messages</h2>
           <p className="mt-1 text-sm text-on-surface-variant">
-            Continue chats with pros about quotes and hire requests.
+            Continue chats tied to jobs and accepted deals.
           </p>
         </Link>
         <Link
-          href="/quotes"
+          href="/work"
           className="border border-border-subtle bg-white p-5 transition-shadow hover:shadow-md"
         >
-          <Icon name="request_quote" className="text-primary" />
+          <Icon name="architecture" className="text-primary" />
           <h2 className="mt-3 font-bold uppercase tracking-wide">
-            Request a Quote
+            Work available
           </h2>
           <p className="mt-1 text-sm text-on-surface-variant">
-            Add materials or a pro, then submit your project details.
+            Browse capacity posts from verified companies.
           </p>
         </Link>
         <Link
@@ -111,6 +126,18 @@ export default function ClientDashboardPage() {
           <p className="mt-1 text-sm text-on-surface-variant">
             Browse verified contractors ready for residential and commercial
             work.
+          </p>
+        </Link>
+        <Link
+          href="/quotes"
+          className="border border-border-subtle bg-white p-5 transition-shadow hover:shadow-md"
+        >
+          <Icon name="request_quote" className="text-primary" />
+          <h2 className="mt-3 font-bold uppercase tracking-wide">
+            Request a Quote
+          </h2>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Add materials or a pro, then submit your project details.
           </p>
         </Link>
       </section>
@@ -131,9 +158,9 @@ export default function ClientDashboardPage() {
         <PrimaryButton
           type="button"
           className="mt-4"
-          onClick={() => router.push("/quotes")}
+          onClick={() => router.push("/jobs/new")}
         >
-          Start a Quote
+          Post a Job
         </PrimaryButton>
       </div>
     </main>

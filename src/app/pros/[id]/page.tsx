@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { BackToDashboard } from "@/components/BackToDashboard";
 import { Icon } from "@/components/Icon";
 import type { Professional } from "@/lib/data";
 import { getMarketplacePro } from "@/lib/marketplace";
@@ -62,12 +63,7 @@ export default function ProProfilePage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-12">
-      <Link
-        href="/pros"
-        className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
-      >
-        <Icon name="arrow_back" className="text-sm" /> Back to directory
-      </Link>
+      <BackToDashboard secondaryHref="/pros" secondaryLabel="Back to directory" />
 
       <section className="relative mb-6 flex flex-col items-center gap-6 overflow-hidden rounded-xl border border-border-subtle bg-surface-container-lowest p-6 md:mb-12 md:flex-row md:items-start">
         <div className="absolute top-0 right-0 -z-0 h-32 w-32 rounded-bl-full bg-primary-fixed opacity-20" />

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import { PrimaryButton } from "@/components/AuthForm";
+import { BackToDashboard } from "@/components/BackToDashboard";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { useAuth } from "@/components/AuthProvider";
 
@@ -42,6 +43,7 @@ export default function AccountPage() {
   if (user) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-6 md:px-8 md:py-10">
+        <BackToDashboard />
         <section className="mb-8 border border-border-subtle bg-white p-6">
           <div className="flex flex-wrap items-center gap-4">
             <ProfileAvatar

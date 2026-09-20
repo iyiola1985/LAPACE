@@ -19,8 +19,19 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
     { href: "/materials", label: "Materials" },
     { href: "/pros", label: "Marketplace" },
     { href: "/jobs", label: "Jobs" },
+    user
+      ? {
+          href:
+            user.role === "admin"
+              ? "/admin"
+              : user.role === "pro"
+                ? "/pro/dashboard"
+                : "/dashboard",
+          label: user.role === "admin" ? "Admin" : "Dashboard",
+        }
+      : null,
     user ? { href: "/account", label: "Account" } : { href: "/register", label: "Join" },
-  ] as const;
+  ].filter((link): link is { href: string; label: string } => Boolean(link));
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border-subtle bg-white">
@@ -70,13 +81,30 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
           </nav>
         ) : null}
 
-        <Link
-          href="/account"
-          aria-label="Account"
-          className="rounded p-2 text-on-background transition-colors hover:bg-surface-container-low"
-        >
-          <Icon name="account_circle" />
-        </Link>
+        <div className="flex items-center gap-1">
+          {user ? (
+            <Link
+              href={
+                user.role === "admin"
+                  ? "/admin"
+                  : user.role === "pro"
+                    ? "/pro/dashboard"
+                    : "/dashboard"
+              }
+              aria-label="Dashboard"
+              className="rounded p-2 text-on-background transition-colors hover:bg-surface-container-low md:hidden"
+            >
+              <Icon name="dashboard" />
+            </Link>
+          ) : null}
+          <Link
+            href="/account"
+            aria-label="Account"
+            className="rounded p-2 text-on-background transition-colors hover:bg-surface-container-low"
+          >
+            <Icon name="account_circle" />
+          </Link>
+        </div>
       </div>
     </header>
   );

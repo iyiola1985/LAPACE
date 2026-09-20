@@ -59,7 +59,15 @@ export default function AdminPage() {
   async function handleProStatus(id: string, status: ProStatus) {
     setBusy(true);
     try {
-      await setProStatus(id, status);
+      let reason: string | undefined;
+      if (status === "rejected") {
+        reason =
+          window.prompt(
+            "Optional rejection reason (shown to the pro):",
+            "Please update your company details and license notes, then re-apply.",
+          ) ?? undefined;
+      }
+      await setProStatus(id, status, reason);
       await refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update pro.");
@@ -82,7 +90,6 @@ export default function AdminPage() {
 
   const pending = pros.filter((pro) => pro.status === "pending");
   const verified = pros.filter((pro) => pro.status === "verified");
-  const rejected = pros.filter((pro) => pro.status === "rejected");
   const newQuotes = quotes.filter((quote) => quote.status === "new");
 
   return (
@@ -101,6 +108,12 @@ export default function AdminPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link
+            href="/deals"
+            className="border border-border-subtle px-4 py-2 text-xs font-bold uppercase tracking-wide"
+          >
+            Deals overview
+          </Link>
           <Link
             href="/messages"
             className="bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wide text-white"
@@ -167,6 +180,11 @@ export default function AdminPage() {
                     <p className="mt-1 text-xs uppercase text-on-surface-variant">
                       Services: {pro.services.join(", ")}
                     </p>
+                    {pro.status === "rejected" && pro.rejectionReason ? (
+                      <p className="mt-2 text-sm text-status-urgent">
+                        Reason: {pro.rejectionReason}
+                      </p>
+                    ) : null}
                     <span
                       className={
                         pro.status === "verified"
@@ -178,43 +196,55 @@ export default function AdminPage() {
                     >
                       {pro.status}
                     </span>
+                    {pro.status === "verified" ? (
+                      <p className="mt-2 text-xs text-on-surface-variant">
+                        Already approved. Use Pending or Reject if this account
+                        is reported for fraud or needs review.
+                      </p>
+                    ) : null}
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void handleProStatus(pro.id, "verified")}
-                      className="bg-status-success px-3 py-2 text-xs font-bold uppercase text-white disabled:opacity-60"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void handleProStatus(pro.id, "pending")}
-                      className="border border-border-subtle px-3 py-2 text-xs font-bold uppercase disabled:opacity-60"
-                    >
-                      Pending
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void handleProStatus(pro.id, "rejected")}
-                      className="bg-status-urgent px-3 py-2 text-xs font-bold uppercase text-white disabled:opacity-60"
-                    >
-                      Reject
-                    </button>
+                    {pro.status !== "verified" ? (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void handleProStatus(pro.id, "verified")}
+                        className="bg-status-success px-3 py-2 text-xs font-bold uppercase text-white disabled:opacity-60"
+                      >
+                        Approve
+                      </button>
+                    ) : null}
+                    {pro.status !== "pending" ? (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void handleProStatus(pro.id, "pending")}
+                        className="border border-border-subtle px-3 py-2 text-xs font-bold uppercase disabled:opacity-60"
+                      >
+                        Pending
+                      </button>
+                    ) : null}
+                    {pro.status !== "rejected" ? (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void handleProStatus(pro.id, "rejected")}
+                        className="bg-status-urgent px-3 py-2 text-xs font-bold uppercase text-white disabled:opacity-60"
+                      >
+                        Reject
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               </article>
             ))
           )}
         </div>
-        {rejected.length > 0 ? (
-          <p className="mt-3 text-xs text-on-surface-variant">
-            Rejected applications stay listed so you can reverse a decision.
-          </p>
-        ) : null}
+        <p className="mt-3 text-xs text-on-surface-variant">
+          Pending pros can be approved or rejected. Verified pros keep only
+          Pending and Reject for fraud reports or re-review. Rejected pros can
+          be set back to Pending or Approved.
+        </p>
       </section>
 
       <section className="mt-12">

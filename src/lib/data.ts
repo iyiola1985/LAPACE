@@ -37,6 +37,7 @@ export type Material = {
   category: Exclude<MaterialCategory, "All Materials">;
   label: string;
   description: string;
+  specifications: { label: string; value: string }[];
   badge?: "In Stock" | "Best Seller";
   image: string;
 };
@@ -299,6 +300,12 @@ export const materials: Material[] = [
     label: "Stone Coated",
     description:
       "Premium stone-coated steel roof tile offering a classic Mediterranean aesthetic with modern industrial resilience.",
+    specifications: [
+      { label: "Material", value: "Stone-coated steel" },
+      { label: "Profile", value: "Milano tile profile" },
+      { label: "Application", value: "Residential and estate roofing" },
+      { label: "Options", value: "Colours and gauges confirmed with quote" },
+    ],
     badge: "In Stock",
     image:
       "https://images.unsplash.com/photo-1632759145351-1d592919f522?auto=format&fit=crop&w=900&q=80",
@@ -310,6 +317,12 @@ export const materials: Material[] = [
     label: "Aluminum",
     description:
       "High-tensile aluminum roofing sheets ideal for commercial and residential applications requiring rapid installation.",
+    specifications: [
+      { label: "Material", value: "High-tensile aluminum" },
+      { label: "Profile", value: "Longspan corrugated sheet" },
+      { label: "Application", value: "Residential and commercial roofing" },
+      { label: "Options", value: "Lengths, gauges and colours made to order" },
+    ],
     badge: "Best Seller",
     image:
       "https://images.unsplash.com/photo-1504328345604-1f17e69c45c2?auto=format&fit=crop&w=900&q=80",
@@ -321,6 +334,12 @@ export const materials: Material[] = [
     label: "Accessories",
     description:
       "Precision-formed ridge caps ensuring weather-tight seals and architectural continuity for peaked roof designs.",
+    specifications: [
+      { label: "Material", value: "Formed roofing metal" },
+      { label: "Application", value: "Roof ridge weather sealing" },
+      { label: "Compatibility", value: "Matched to selected roofing profile" },
+      { label: "Options", value: "Dimensions and colour confirmed with quote" },
+    ],
     badge: "In Stock",
     image:
       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=80",
@@ -332,6 +351,12 @@ export const materials: Material[] = [
     label: "Industrial Grade",
     description:
       "Durable, lightweight, and resistant to corrosion. Ideal for custom corrugation and large-scale projects.",
+    specifications: [
+      { label: "Material", value: "Roofing-grade aluminum coil" },
+      { label: "Supply format", value: "Industrial coil" },
+      { label: "Application", value: "Custom corrugation and fabrication" },
+      { label: "Options", value: "Gauge, width and finish confirmed with quote" },
+    ],
     badge: "In Stock",
     image:
       "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=900&q=80",
@@ -343,6 +368,12 @@ export const materials: Material[] = [
     label: "Premium Finish",
     description:
       "Elegant aesthetics combined with exceptional weather resistance for homes and estates.",
+    specifications: [
+      { label: "Material", value: "Stone-coated steel" },
+      { label: "Finish", value: "Textured stone coating" },
+      { label: "Application", value: "Homes, estates and premium projects" },
+      { label: "Options", value: "Profiles and colours confirmed with quote" },
+    ],
     badge: "Best Seller",
     image:
       "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=900&q=80",

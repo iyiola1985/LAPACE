@@ -2,18 +2,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "./AuthProvider";
 import { Icon } from "./Icon";
-
-const items = [
-  { href: "/", label: "Home", icon: "home" },
-  { href: "/pros", label: "Pros", icon: "engineering" },
-  { href: "/jobs", label: "Jobs", icon: "work" },
-  { href: "/quotes", label: "Quotes", icon: "request_quote" },
-  { href: "/account", label: "Account", icon: "person" },
-] as const;
+import { dashboardPathFor } from "@/lib/auth";
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  const dashboardHref = user ? dashboardPathFor(user) : "/account";
+  const dashboardLabel =
+    user?.role === "admin" ? "Admin" : user ? "Dashboard" : "Account";
+  const dashboardIcon =
+    user?.role === "admin" ? "admin_panel_settings" : user ? "dashboard" : "person";
+
+  const items = [
+    { href: "/", label: "Home", icon: "home" },
+    { href: "/pros", label: "Pros", icon: "engineering" },
+    { href: "/jobs", label: "Jobs", icon: "work" },
+    { href: "/quotes", label: "Quotes", icon: "request_quote" },
+    { href: dashboardHref, label: dashboardLabel, icon: dashboardIcon },
+  ] as const;
 
   return (
     <nav className="fixed bottom-0 left-0 z-50 flex w-full items-center justify-around border-t border-border-subtle bg-white px-2 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.06)] md:hidden">
@@ -21,11 +30,11 @@ export function BottomNav() {
         const active =
           item.href === "/"
             ? pathname === "/"
-            : pathname.startsWith(item.href);
+            : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
         return (
           <Link
-            key={item.href}
+            key={`${item.href}-${item.label}`}
             href={item.href}
             className={
               active

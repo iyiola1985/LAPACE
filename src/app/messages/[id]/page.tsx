@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
+import { BackToDashboard } from "@/components/BackToDashboard";
 import { PrimaryButton } from "@/components/AuthForm";
 import { redactContactDetails } from "@/lib/contactGuard";
 import { updateJobStatus } from "@/lib/jobs";
@@ -145,15 +146,10 @@ export default function ConversationPage() {
 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-3xl flex-col px-4 py-6 md:px-8 md:py-8">
+      <BackToDashboard secondaryHref="/messages" secondaryLabel="Back to inbox" />
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle pb-4">
         <div>
-          <Link
-            href="/messages"
-            className="text-sm font-semibold text-primary underline"
-          >
-            Inbox
-          </Link>
-          <h1 className="mt-2 text-xl font-bold uppercase tracking-wide">
+          <h1 className="text-xl font-bold uppercase tracking-wide">
             {otherName}
           </h1>
           {conversation.jobId ? (

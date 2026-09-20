@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { BackToDashboard } from "@/components/BackToDashboard";
 import { FilterChips } from "@/components/FilterChips";
 import { Icon } from "@/components/Icon";
 import { MaterialCard } from "@/components/MaterialCard";
@@ -25,6 +26,7 @@ export default function MaterialsPage() {
 
   return (
     <main className="relative mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 py-6 md:px-8">
+      <BackToDashboard />
       <section className="flex flex-col gap-2">
         <h1 className="accent-underline text-2xl font-bold uppercase tracking-wide text-on-background md:text-3xl">
           Materials Catalog

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -10,6 +9,7 @@ import {
   TextArea,
   TextInput,
 } from "@/components/AuthForm";
+import { BackToDashboard } from "@/components/BackToDashboard";
 import { useAuth } from "@/components/AuthProvider";
 import { PRO_SERVICES } from "@/lib/auth";
 import { createJob } from "@/lib/jobs";
@@ -68,65 +68,67 @@ export default function NewJobPage() {
   }
 
   return (
-    <AuthShell
-      title="Post a Job"
-      subtitle="Describe your roofing project so verified pros can reach out."
-    >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <FormField label="Job title">
-          <TextInput
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. Re-roof bungalow in Ikeja"
-          />
-        </FormField>
-        <FormField label="City / Area">
-          <TextInput
-            required
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder={user.city}
-          />
-        </FormField>
-        <FormField label="Service type">
-          <select
-            required
-            value={service}
-            onChange={(e) => setService(e.target.value as typeof service)}
-            className="w-full border border-border-subtle bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          >
-            {PRO_SERVICES.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </FormField>
-        <FormField label="Budget (optional)">
-          <TextInput
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
-            placeholder="e.g. ₦800k – ₦1.2m"
-          />
-        </FormField>
-        <FormField label="Project details">
-          <TextArea
-            required
-            rows={5}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Roof type, size, timeline, access notes..."
-          />
-        </FormField>
-        {error ? <p className="text-sm text-status-urgent">{error}</p> : null}
-        <PrimaryButton type="submit" className="w-full" disabled={pending}>
-          {pending ? "Posting..." : "Publish Job"}
-        </PrimaryButton>
-      </form>
-      <Link href="/jobs" className="text-sm font-semibold text-primary underline">
-        Back to job board
-      </Link>
-    </AuthShell>
+    <div>
+      <div className="mx-auto max-w-xl px-4 pt-8 md:px-8 md:pt-12">
+        <BackToDashboard secondaryHref="/jobs" secondaryLabel="Back to job board" />
+      </div>
+      <AuthShell
+        title="Post a Job"
+        subtitle="Describe your roofing project so verified pros can reach out."
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <FormField label="Job title">
+            <TextInput
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Re-roof bungalow in Ikeja"
+            />
+          </FormField>
+          <FormField label="City / Area">
+            <TextInput
+              required
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder={user.city}
+            />
+          </FormField>
+          <FormField label="Service type">
+            <select
+              required
+              value={service}
+              onChange={(e) => setService(e.target.value as typeof service)}
+              className="w-full border border-border-subtle bg-white px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              {PRO_SERVICES.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </FormField>
+          <FormField label="Budget (optional)">
+            <TextInput
+              value={budget}
+              onChange={(e) => setBudget(e.target.value)}
+              placeholder="e.g. ₦800k – ₦1.2m"
+            />
+          </FormField>
+          <FormField label="Project details">
+            <TextArea
+              required
+              rows={5}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Roof type, size, timeline, access notes..."
+            />
+          </FormField>
+          {error ? <p className="text-sm text-status-urgent">{error}</p> : null}
+          <PrimaryButton type="submit" className="w-full" disabled={pending}>
+            {pending ? "Posting..." : "Publish Job"}
+          </PrimaryButton>
+        </form>
+      </AuthShell>
+    </div>
   );
 }

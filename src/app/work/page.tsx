@@ -7,12 +7,16 @@ import { useAuth } from "@/components/AuthProvider";
 import { BackToDashboard } from "@/components/BackToDashboard";
 import { PrimaryButton } from "@/components/AuthForm";
 import { isVerifiedPro, marketplaceLockMessage } from "@/lib/access";
-import { ensureDemoJobs, listJobs, type JobPost } from "@/lib/jobs";
+import {
+  ensureDemoWorkPosts,
+  listWorkPosts,
+  type WorkPost,
+} from "@/lib/workPosts";
 
-export default function JobsPage() {
+export default function WorkBoardPage() {
   const router = useRouter();
   const { user, ready } = useAuth();
-  const [jobs, setJobs] = useState<JobPost[]>([]);
+  const [posts, setPosts] = useState<WorkPost[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -27,12 +31,12 @@ export default function JobsPage() {
     void (async () => {
       setLoading(true);
       try {
-        ensureDemoJobs();
-        const next = await listJobs();
-        if (!cancelled) setJobs(next);
+        ensureDemoWorkPosts();
+        const next = await listWorkPosts();
+        if (!cancelled) setPosts(next);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Could not load jobs.");
+          setError(err instanceof Error ? err.message : "Could not load posts.");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -46,24 +50,28 @@ export default function JobsPage() {
 
   const visible = useMemo(() => {
     if (!user) return [];
-    if (user.role === "client") {
-      return jobs.filter((job) => job.clientId === user.id);
-    }
-    if (user.role === "pro") {
-      if (!isVerifiedPro(user)) return [];
-      return jobs.filter(
-        (job) => job.status === "open" || job.hiredProId === user.id,
-      );
-    }
-    return jobs;
-  }, [jobs, user]);
+    return posts.filter((post) => {
+      if (post.proId === user.id) return true;
+      if (post.status !== "open") {
+        return post.hiredPartyId === user.id;
+      }
+      if (user.role === "client") {
+        return post.audience === "clients" || post.audience === "both";
+      }
+      if (user.role === "pro") {
+        if (user.status !== "verified") return false;
+        return post.audience === "pros" || post.audience === "both";
+      }
+      return true;
+    });
+  }, [posts, user]);
 
   const lockMessage = marketplaceLockMessage(user);
 
   if (!ready || !user) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-12 text-on-surface-variant">
-        Loading jobs...
+        Loading work board...
       </main>
     );
   }
@@ -74,17 +82,16 @@ export default function JobsPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="accent-underline text-2xl font-bold uppercase tracking-wide md:text-3xl">
-            Job Board
+            Work available
           </h1>
           <p className="mt-3 text-sm text-on-surface-variant">
-            {user.role === "client"
-              ? "Post roofing work and review offers from verified pros."
-              : "Browse open client jobs and submit on-site offers."}
+            Verified companies post capacity and collaboration opportunities.
+            Clients and pros can respond with on-site offers.
           </p>
         </div>
-        {user.role === "client" ? (
-          <Link href="/jobs/new">
-            <PrimaryButton type="button">Post a Job</PrimaryButton>
+        {isVerifiedPro(user) ? (
+          <Link href="/work/new">
+            <PrimaryButton type="button">Post work available</PrimaryButton>
           </Link>
         ) : null}
       </div>
@@ -101,31 +108,36 @@ export default function JobsPage() {
         <div className="mt-8 space-y-4">
           {visible.length === 0 ? (
             <p className="text-sm text-on-surface-variant">
-              {user.role === "client"
-                ? "You have not posted any jobs yet."
-                : user.role === "pro" && !isVerifiedPro(user)
-                  ? "Job board unlocks after Lapace verifies your company."
-                  : "No open jobs right now. Check back soon."}
+              No work posts yet.
+              {isVerifiedPro(user)
+                ? " Post capacity so clients and partner companies can respond."
+                : ""}
             </p>
           ) : (
-            visible.map((job) => (
+            visible.map((post) => (
               <Link
-                key={job.id}
-                href={`/jobs/${job.id}`}
+                key={post.id}
+                href={`/work/${post.id}`}
                 className="block border border-border-subtle bg-white p-5 transition-shadow hover:shadow-md"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h2 className="font-bold uppercase tracking-wide">
-                      {job.title}
+                    <p className="text-xs font-bold uppercase tracking-wide text-primary">
+                      {post.postType === "pro_to_pro"
+                        ? "Pro to pro"
+                        : "Work available"}
+                    </p>
+                    <h2 className="mt-1 font-bold uppercase tracking-wide">
+                      {post.title}
                     </h2>
                     <p className="mt-1 text-sm text-on-surface-variant">
-                      {job.city} · {job.service} · {job.budget || "Budget TBD"}
+                      {post.proName} · {post.city} · {post.service} ·{" "}
+                      {post.budget || "Budget TBD"}
                     </p>
-                    <p className="mt-2 line-clamp-2 text-sm">{job.description}</p>
+                    <p className="mt-2 line-clamp-2 text-sm">{post.description}</p>
                   </div>
                   <span className="bg-primary/15 px-2 py-1 text-xs font-bold uppercase text-primary">
-                    {job.status}
+                    {post.status}
                   </span>
                 </div>
               </Link>

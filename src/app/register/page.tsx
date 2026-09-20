@@ -18,9 +18,10 @@ export default function RegisterPage() {
           <div className="mb-4 flex h-12 w-12 items-center justify-center bg-primary text-white">
             <Icon name="home" />
           </div>
-          <h2 className="text-lg font-bold uppercase">I need a roofing pro</h2>
+          <h2 className="text-lg font-bold uppercase">Register as Client</h2>
           <p className="mt-2 text-sm text-on-surface-variant">
-            For homeowners and businesses hiring installers or requesting quotes.
+            Post jobs, review offers from verified companies, and keep deals on
+            Lapace.
           </p>
         </Link>
         <Link
@@ -30,9 +31,10 @@ export default function RegisterPage() {
           <div className="mb-4 flex h-12 w-12 items-center justify-center bg-surface-dark text-white">
             <Icon name="engineering" />
           </div>
-          <h2 className="text-lg font-bold uppercase">I offer roofing services</h2>
+          <h2 className="text-lg font-bold uppercase">Register as Pro Company</h2>
           <p className="mt-2 text-sm text-on-surface-variant">
-            For contractors who want jobs and a Lapace Pro profile.
+            Apply for verification, bid on client jobs, post work available, and
+            collaborate pro-to-pro after approval.
           </p>
         </Link>
       </div>

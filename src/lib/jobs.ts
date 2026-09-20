@@ -2,7 +2,12 @@ import { createId, readUsers } from "@/lib/auth";
 import { assertNoContactDetails } from "@/lib/contactGuard";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export type JobStatus = "open" | "hired" | "closed";
+export type JobStatus =
+  | "open"
+  | "hired"
+  | "in_progress"
+  | "completed"
+  | "closed";
 
 export type JobPost = {
   id: string;

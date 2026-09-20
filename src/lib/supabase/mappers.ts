@@ -51,6 +51,7 @@ export function profileFromRow(row: ProfileRow): UserProfile {
         about: row.about ?? "",
         licenseNote: row.license_note ?? "",
         status: row.pro_status ?? "pending",
+        rejectionReason: row.rejection_reason ?? undefined,
         avatarUrl: row.avatar_url ?? undefined,
         createdAt: row.created_at,
       };

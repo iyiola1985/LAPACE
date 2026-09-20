@@ -10,6 +10,7 @@ export type ProfileRow = {
   about: string | null;
   license_note: string | null;
   pro_status: "pending" | "verified" | "rejected" | null;
+  rejection_reason?: string | null;
   avatar_url: string | null;
   created_at: string;
 };

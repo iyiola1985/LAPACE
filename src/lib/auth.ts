@@ -43,6 +43,7 @@ export type ProProfile = {
   about: string;
   licenseNote: string;
   status: ProStatus;
+  rejectionReason?: string;
   avatarUrl?: string;
   createdAt: string;
 };

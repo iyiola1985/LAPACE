@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
+import { BackToDashboard } from "@/components/BackToDashboard";
+import { marketplaceLockMessage } from "@/lib/access";
 import { redactContactDetails } from "@/lib/contactGuard";
 import {
   listConversationsForUser,
@@ -49,6 +51,8 @@ export default function MessagesInboxPage() {
     };
   }, [ready, user, router]);
 
+  const lockMessage = marketplaceLockMessage(user);
+
   if (!ready || !user) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-12 text-on-surface-variant">
@@ -59,15 +63,21 @@ export default function MessagesInboxPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8 md:px-8 md:py-10">
+      <BackToDashboard />
       <h1 className="accent-underline text-2xl font-bold uppercase tracking-wide md:text-3xl">
         {user.role === "admin" ? "Admin Message Inbox" : "Messages"}
       </h1>
       <p className="mt-3 text-sm text-on-surface-variant">
         {user.role === "admin"
           ? "Review conversations between clients and professionals."
-          : "Chat with clients and pros about jobs and hire requests."}
+          : "Deal chats stay on Lapace. Phone numbers and emails are blocked."}
       </p>
 
+      {lockMessage ? (
+        <p className="mt-4 border border-primary/30 bg-primary/10 p-3 text-sm text-primary">
+          {lockMessage}
+        </p>
+      ) : null}
       {error ? <p className="mt-4 text-sm text-status-urgent">{error}</p> : null}
       {loading ? (
         <p className="mt-6 text-on-surface-variant">Loading...</p>

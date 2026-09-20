@@ -1,10 +1,19 @@
-import { createId, readUsers } from "@/lib/auth";
+import { createId, readUsers, type UserProfile } from "@/lib/auth";
+import {
+  PENDING_PRO_MESSAGE,
+  REJECTED_PRO_MESSAGE,
+  UNVERIFIED_PRO_BLOCK,
+} from "@/lib/access";
 import { assertNoContactDetails } from "@/lib/contactGuard";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+
+export type ConversationMode = "client_pro" | "pro_pro";
 
 export type Conversation = {
   id: string;
   jobId?: string;
+  workPostId?: string;
+  mode: ConversationMode;
   clientId: string;
   proId: string;
   clientName: string;
@@ -25,6 +34,8 @@ export type ChatMessage = {
 type ConversationRow = {
   id: string;
   job_id: string | null;
+  work_post_id?: string | null;
+  mode?: ConversationMode | null;
   client_id: string;
   pro_id: string;
   created_at: string;
@@ -49,7 +60,10 @@ function readLocalConversations(): Conversation[] {
   try {
     const raw = window.localStorage.getItem(CONV_KEY);
     if (!raw) return [];
-    return JSON.parse(raw) as Conversation[];
+    return (JSON.parse(raw) as Conversation[]).map((item) => ({
+      ...item,
+      mode: item.mode ?? "client_pro",
+    }));
   } catch {
     return [];
   }
@@ -86,9 +100,14 @@ function conversationFromRow(row: ConversationRow): Conversation {
   return {
     id: row.id,
     jobId: row.job_id ?? undefined,
+    workPostId: row.work_post_id ?? undefined,
+    mode: row.mode === "pro_pro" ? "pro_pro" : "client_pro",
     clientId: row.client_id,
     proId: row.pro_id,
-    clientName: displayName(row.client?.full_name ?? "Client"),
+    clientName: displayName(
+      row.client?.full_name ?? "Client",
+      row.mode === "pro_pro" ? row.client?.company_name : null,
+    ),
     proName: displayName(
       row.pro?.full_name ?? "Pro",
       row.pro?.company_name,
@@ -97,6 +116,95 @@ function conversationFromRow(row: ConversationRow): Conversation {
     updatedAt: row.updated_at,
     createdAt: row.created_at,
   };
+}
+
+async function loadProfile(userId: string): Promise<UserProfile | null> {
+  const local = readUsers().find((entry) => entry.profile.id === userId);
+  if (local) return local.profile;
+
+  const supabase = getSupabaseBrowserClient();
+  if (!supabase) return null;
+  const { data } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!data) return null;
+
+  const role = data.role as UserProfile["role"];
+  if (role === "pro") {
+    return {
+      role: "pro",
+      id: data.id,
+      fullName: data.full_name,
+      email: data.email,
+      phone: data.phone,
+      companyName: data.company_name ?? "",
+      city: data.city,
+      services: [],
+      about: data.about ?? "",
+      licenseNote: data.license_note ?? "",
+      status: data.pro_status ?? "pending",
+      createdAt: data.created_at,
+    };
+  }
+  if (role === "admin") {
+    return {
+      role: "admin",
+      id: data.id,
+      fullName: data.full_name,
+      email: data.email,
+      phone: data.phone,
+      city: data.city,
+      createdAt: data.created_at,
+    };
+  }
+  return {
+    role: "client",
+    id: data.id,
+    fullName: data.full_name,
+    email: data.email,
+    phone: data.phone,
+    city: data.city,
+    createdAt: data.created_at,
+  };
+}
+
+async function assertCanOpenConversation(input: {
+  clientId: string;
+  proId: string;
+  mode: ConversationMode;
+  senderId: string;
+}) {
+  const [clientProfile, proProfile, sender] = await Promise.all([
+    loadProfile(input.clientId),
+    loadProfile(input.proId),
+    loadProfile(input.senderId),
+  ]);
+
+  if (!proProfile || proProfile.role !== "pro") {
+    throw new Error("Messages require a registered pro company.");
+  }
+  if (proProfile.status === "pending") throw new Error(PENDING_PRO_MESSAGE);
+  if (proProfile.status === "rejected") throw new Error(REJECTED_PRO_MESSAGE);
+  if (proProfile.status !== "verified") throw new Error(UNVERIFIED_PRO_BLOCK);
+
+  if (input.mode === "pro_pro") {
+    if (!clientProfile || clientProfile.role !== "pro") {
+      throw new Error("Pro-to-pro chats require two verified companies.");
+    }
+    if (clientProfile.status !== "verified") {
+      throw new Error(UNVERIFIED_PRO_BLOCK);
+    }
+  } else if (!clientProfile || clientProfile.role !== "client") {
+    throw new Error("Client–pro chats require a client account.");
+  }
+
+  if (sender?.role === "pro" && sender.status !== "verified") {
+    if (sender.status === "pending") throw new Error(PENDING_PRO_MESSAGE);
+    if (sender.status === "rejected") throw new Error(REJECTED_PRO_MESSAGE);
+    throw new Error(UNVERIFIED_PRO_BLOCK);
+  }
 }
 
 export async function listConversationsForUser(
@@ -220,9 +328,19 @@ export async function openConversation(input: {
   proId: string;
   proName: string;
   jobId?: string;
+  workPostId?: string;
+  mode?: ConversationMode;
   initialMessage?: string;
   senderId: string;
 }): Promise<Conversation> {
+  const mode: ConversationMode = input.mode ?? "client_pro";
+  await assertCanOpenConversation({
+    clientId: input.clientId,
+    proId: input.proId,
+    mode,
+    senderId: input.senderId,
+  });
+
   const supabase = getSupabaseBrowserClient();
 
   if (!supabase) {
@@ -230,7 +348,9 @@ export async function openConversation(input: {
       (item) =>
         item.clientId === input.clientId &&
         item.proId === input.proId &&
-        (item.jobId ?? "") === (input.jobId ?? ""),
+        (item.jobId ?? "") === (input.jobId ?? "") &&
+        (item.workPostId ?? "") === (input.workPostId ?? "") &&
+        (item.mode ?? "client_pro") === mode,
     );
 
     if (existing) {
@@ -247,6 +367,8 @@ export async function openConversation(input: {
     const conversation: Conversation = {
       id: createId("conv"),
       jobId: input.jobId,
+      workPostId: input.workPostId,
+      mode,
       clientId: input.clientId,
       proId: input.proId,
       clientName: input.clientName,
@@ -284,6 +406,10 @@ export async function openConversation(input: {
       ? query.eq("job_id", input.jobId)
       : query.is("job_id", null);
 
+    query = input.workPostId
+      ? query.eq("work_post_id", input.workPostId)
+      : query.is("work_post_id", null);
+
     return query.maybeSingle();
   }
 
@@ -303,6 +429,8 @@ export async function openConversation(input: {
         client_id: input.clientId,
         pro_id: input.proId,
         job_id: input.jobId ?? null,
+        work_post_id: input.workPostId ?? null,
+        mode,
       })
       .select(
         "*, client:profiles!conversations_client_id_fkey(full_name, company_name), pro:profiles!conversations_pro_id_fkey(full_name, company_name)",

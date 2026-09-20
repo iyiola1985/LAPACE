@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { BackToDashboard } from "@/components/BackToDashboard";
 import { Icon } from "@/components/Icon";
 import { useQuote } from "@/components/QuoteProvider";
 import { useAuth } from "@/components/AuthProvider";
@@ -69,6 +70,7 @@ export default function QuotesClient() {
   if (submitted) {
     return (
       <main className="mx-auto max-w-2xl px-4 py-16 text-center md:px-8">
+        <BackToDashboard className="mb-6 justify-center" />
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-status-success/20 text-status-success">
           <Icon name="check_circle" filled className="text-4xl" />
         </div>
@@ -79,18 +81,21 @@ export default function QuotesClient() {
           Thanks{name ? `, ${name}` : ""}. Your request was saved. A Lapace
           team member will follow up shortly.
         </p>
-        <Link
-          href="/"
-          className="inline-flex rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-on-primary"
-        >
-          Back to Home
-        </Link>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/"
+            className="inline-flex rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-on-primary"
+          >
+            Back to Home
+          </Link>
+        </div>
       </main>
     );
   }
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6 md:px-8 md:py-10">
+      <BackToDashboard />
       <h1 className="mb-2 font-headline text-[28px] font-bold text-primary md:text-[32px]">
         Request a Quote
       </h1>

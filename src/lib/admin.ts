@@ -159,7 +159,11 @@ export async function listProProfiles(): Promise<ProProfile[]> {
   );
 }
 
-export async function setProStatus(proId: string, status: ProStatus) {
+export async function setProStatus(
+  proId: string,
+  status: ProStatus,
+  rejectionReason?: string,
+) {
   const supabase = getSupabaseBrowserClient();
   if (!supabase) {
     const users = readUsers();
@@ -169,22 +173,77 @@ export async function setProStatus(proId: string, status: ProStatus) {
     if (index < 0) return null;
 
     const profile = users[index].profile as ProProfile;
-    const updated: ProProfile = { ...profile, status };
+    const updated: ProProfile = {
+      ...profile,
+      status,
+      rejectionReason:
+        status === "rejected"
+          ? rejectionReason?.trim() || profile.rejectionReason
+          : undefined,
+    };
     users[index] = { ...users[index], profile: updated };
     writeUsers(users);
     return updated;
   }
 
+  const payload: {
+    pro_status: ProStatus;
+    updated_at: string;
+    rejection_reason?: string | null;
+  } = {
+    pro_status: status,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Only touch rejection_reason when rejecting (or clearing on re-approve).
+  // Requires: alter table public.profiles add column if not exists rejection_reason text;
+  if (status === "rejected") {
+    payload.rejection_reason = rejectionReason?.trim() || null;
+  } else {
+    payload.rejection_reason = null;
+  }
+
   const { data, error } = await supabase
     .from("profiles")
-    .update({ pro_status: status, updated_at: new Date().toISOString() })
+    .update(payload)
     .eq("id", proId)
     .eq("role", "pro")
     .select("*")
     .single();
 
-  if (error || !data) {
-    throw new Error(error?.message ?? "Could not update pro status.");
+  if (error) {
+    // Fallback if marketplace-deals.sql has not been applied yet.
+    if (
+      error.message.includes("rejection_reason") ||
+      error.code === "PGRST204"
+    ) {
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from("profiles")
+        .update({
+          pro_status: status,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", proId)
+        .eq("role", "pro")
+        .select("*")
+        .single();
+
+      if (fallbackError || !fallbackData) {
+        throw new Error(
+          fallbackError?.message ??
+            "Could not update pro status. Run supabase/marketplace-deals.sql (or add profiles.rejection_reason) in Supabase.",
+        );
+      }
+
+      const profile = profileFromRow(fallbackData as ProfileRow);
+      return profile.role === "pro" ? profile : null;
+    }
+
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("Could not update pro status.");
   }
 
   const profile = profileFromRow(data as ProfileRow);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { BackToDashboard } from "@/components/BackToDashboard";
 import { FilterChips } from "@/components/FilterChips";
 import { Icon } from "@/components/Icon";
 import { ProCard } from "@/components/ProCard";
@@ -63,6 +64,7 @@ export default function ProsPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-6 md:px-8">
+      <BackToDashboard />
       <section className="mb-12">
         <h1 className="accent-underline mb-2 text-center text-2xl font-bold uppercase tracking-wide md:text-left md:text-3xl">
           Find a Roofing Professional

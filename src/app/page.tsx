@@ -27,18 +27,24 @@ export default function HomePage() {
             aluminum and stone-coated roofs for residential and commercial
             projects.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
-              href="/pros"
+              href="/register/client"
               className="inline-flex items-center justify-center bg-primary px-7 py-3 text-xs font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary-container"
             >
-              Find a Roofing Pro
+              Register as Client
             </Link>
             <Link
-              href="/materials"
+              href="/register/pro"
               className="inline-flex items-center justify-center border border-white/80 bg-transparent px-7 py-3 text-xs font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white hover:text-surface-dark"
             >
-              Browse Materials
+              Register as Pro Company
+            </Link>
+            <Link
+              href="/pros"
+              className="inline-flex items-center justify-center border border-white/40 bg-transparent px-7 py-3 text-xs font-bold uppercase tracking-[0.12em] text-white/90 transition-colors hover:bg-white/10"
+            >
+              Find a Roofing Pro
             </Link>
           </div>
         </div>

@@ -38,8 +38,9 @@ export function HireActions({ proId, proName }: HireActionsProps) {
         clientName: user.fullName,
         proId,
         proName,
+        mode: "client_pro",
         senderId: user.id,
-        initialMessage: `Hi ${proName}, I'm interested in hiring you for a roofing project.`,
+        initialMessage: `Hi ${proName}, I'm interested in hiring you for a roofing project. Please keep the conversation on Lapace.`,
       });
       router.push(`/messages/${conversation.id}`);
     } catch (err) {

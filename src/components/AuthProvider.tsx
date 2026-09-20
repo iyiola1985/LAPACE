@@ -68,6 +68,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<LoginResult>;
   logout: () => Promise<void>;
   updateAvatar: (avatarUrl: string) => Promise<AuthResult>;
+  refreshProfile: () => Promise<UserProfile | null>;
   dashboardPath: string | null;
 };
 
@@ -409,6 +410,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [usingSupabase, user],
   );
 
+  const refreshProfile = useCallback(async (): Promise<UserProfile | null> => {
+    if (usingSupabase) {
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) return null;
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.user) {
+        setUser(null);
+        return null;
+      }
+      const profile = await fetchProfileById(session.user.id);
+      setUser(profile);
+      return profile;
+    }
+
+    const email = readSessionEmail();
+    if (!email) {
+      setUser(null);
+      return null;
+    }
+    const stored = findUserByEmail(email);
+    const profile = stored?.profile ?? null;
+    setUser(profile);
+    return profile;
+  }, [usingSupabase]);
+
   const value = useMemo(
     () => ({
       user,
@@ -420,6 +448,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       updateAvatar,
+      refreshProfile,
       dashboardPath: user ? dashboardPathFor(user) : null,
     }),
     [
@@ -431,6 +460,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       updateAvatar,
+      refreshProfile,
     ],
   );
 
