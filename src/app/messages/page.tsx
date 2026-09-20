@@ -70,7 +70,9 @@ export default function MessagesInboxPage() {
       <p className="mt-3 text-sm text-on-surface-variant">
         {user.role === "admin"
           ? "Review conversations between clients and professionals."
-          : "Deal chats stay on Lapace. Phone numbers and emails are blocked."}
+          : user.role === "pro"
+            ? "Chat with clients and other verified companies. Keep all contact on Lapace."
+            : "Deal chats stay on Lapace. Phone numbers and emails are blocked."}
       </p>
 
       {lockMessage ? (
@@ -85,8 +87,11 @@ export default function MessagesInboxPage() {
         <div className="mt-8 space-y-3">
           {items.length === 0 ? (
             <p className="text-sm text-on-surface-variant">
-              No conversations yet. Message a pro from the marketplace or reply
-              to a job.
+              {user.role === "admin"
+                ? "No conversations yet."
+                : user.role === "pro"
+                  ? "No conversations yet. Message a client from a job offer, or message another verified company from the marketplace."
+                  : "No conversations yet. Message a pro from the marketplace or reply to a job."}
             </p>
           ) : (
             items.map((item) => {

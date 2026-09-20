@@ -208,7 +208,7 @@ export default function ProDashboardPage() {
               <Icon name="chat" className="text-primary" />
               <h2 className="mt-3 font-bold uppercase tracking-wide">Messages</h2>
               <p className="mt-1 text-sm text-on-surface-variant">
-                Continue deal chats with clients and partner companies.
+                Chat with clients and other verified companies on Lapace.
               </p>
             </Link>
           </>

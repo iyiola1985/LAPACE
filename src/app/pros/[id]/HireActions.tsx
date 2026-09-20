@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useQuote } from "@/components/QuoteProvider";
 import { useAuth } from "@/components/AuthProvider";
+import { isVerifiedPro, marketplaceLockMessage } from "@/lib/access";
 import { openConversation } from "@/lib/messages";
 
 type HireActionsProps = {
@@ -25,56 +26,117 @@ export function HireActions({ proId, proName }: HireActionsProps) {
       router.push("/login");
       return;
     }
-    if (user.role !== "client") {
-      setError("Only clients can message pros from the marketplace.");
+    if (user.id === proId) {
+      setError("You cannot message your own company profile.");
       return;
     }
-    if (user.id === proId) return;
 
-    setBusy(true);
-    try {
-      const conversation = await openConversation({
-        clientId: user.id,
-        clientName: user.fullName,
-        proId,
-        proName,
-        mode: "client_pro",
-        senderId: user.id,
-        initialMessage: `Hi ${proName}, I'm interested in hiring you for a roofing project. Please keep the conversation on Lapace.`,
-      });
-      router.push(`/messages/${conversation.id}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not start chat.");
-    } finally {
-      setBusy(false);
+    if (user.role === "client") {
+      setBusy(true);
+      try {
+        const conversation = await openConversation({
+          clientId: user.id,
+          clientName: user.fullName,
+          proId,
+          proName,
+          mode: "client_pro",
+          senderId: user.id,
+          initialMessage: `Hi ${proName}, I'm interested in hiring you for a roofing project. Please keep the conversation on Lapace.`,
+        });
+        router.push(`/messages/${conversation.id}`);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Could not start chat.");
+      } finally {
+        setBusy(false);
+      }
+      return;
     }
+
+    if (user.role === "pro") {
+      const lock = marketplaceLockMessage(user);
+      if (lock) {
+        setError(lock);
+        return;
+      }
+      if (!isVerifiedPro(user)) {
+        setError("Only Lapace-verified pros can message other companies.");
+        return;
+      }
+
+      setBusy(true);
+      try {
+        const myName = user.companyName || user.fullName;
+        const conversation = await openConversation({
+          clientId: user.id,
+          clientName: myName,
+          proId,
+          proName,
+          mode: "pro_pro",
+          senderId: user.id,
+          initialMessage: `Hi ${proName}, this is ${myName}. I'd like to discuss a collaboration on Lapace. Please keep the conversation here.`,
+        });
+        router.push(`/messages/${conversation.id}`);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Could not start chat.");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+
+    setError("Sign in as a client or verified pro to message this company.");
   }
 
   function handleQuoteRequest() {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    if (user.role !== "client") {
+      setError("Only clients can request quotes from the marketplace.");
+      return;
+    }
     addItem({ id: `pro:${proId}`, name: proName, kind: "pro" });
     router.push(`/quotes?pro=${encodeURIComponent(proId)}`);
   }
+
+  const isOwnProfile = user?.id === proId;
+  const canMessageAsClient = !user || user.role === "client";
+  const canMessageAsPro = isVerifiedPro(user);
+  const showMessage =
+    !isOwnProfile && (canMessageAsClient || canMessageAsPro || !user);
+  const showQuote = !isOwnProfile && (!user || user.role === "client");
+
+  const messageLabel = busy
+    ? "Opening..."
+    : user?.role === "pro"
+      ? "Message company"
+      : "Message Pro";
 
   return (
     <div className="fixed bottom-20 left-0 z-40 flex w-full items-center justify-end gap-4 border-t border-border-subtle bg-white p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] md:bottom-0">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-end gap-2 px-4 md:px-8">
         {error ? <p className="text-sm text-status-urgent">{error}</p> : null}
         <div className="flex justify-end gap-4">
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void handleMessage()}
-            className="border border-primary px-6 py-3 text-xs font-bold uppercase tracking-[0.1em] text-primary transition-colors hover:bg-primary-fixed disabled:opacity-60"
-          >
-            {busy ? "Opening..." : "Message Pro"}
-          </button>
-          <button
-            type="button"
-            onClick={handleQuoteRequest}
-            className="bg-primary px-6 py-3 text-xs font-bold uppercase tracking-[0.1em] text-white shadow-sm transition-colors hover:bg-primary-container"
-          >
-            Request Quote
-          </button>
+          {showMessage ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void handleMessage()}
+              className="border border-primary px-6 py-3 text-xs font-bold uppercase tracking-[0.1em] text-primary transition-colors hover:bg-primary-fixed disabled:opacity-60"
+            >
+              {messageLabel}
+            </button>
+          ) : null}
+          {showQuote ? (
+            <button
+              type="button"
+              onClick={handleQuoteRequest}
+              className="bg-primary px-6 py-3 text-xs font-bold uppercase tracking-[0.1em] text-white shadow-sm transition-colors hover:bg-primary-container"
+            >
+              Request Quote
+            </button>
+          ) : null}
         </div>
       </div>
     </div>

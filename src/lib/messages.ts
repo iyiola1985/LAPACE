@@ -344,14 +344,19 @@ export async function openConversation(input: {
   const supabase = getSupabaseBrowserClient();
 
   if (!supabase) {
-    const existing = readLocalConversations().find(
-      (item) =>
-        item.clientId === input.clientId &&
-        item.proId === input.proId &&
+    const existing = readLocalConversations().find((item) => {
+      const samePair =
+        mode === "pro_pro"
+          ? (item.clientId === input.clientId && item.proId === input.proId) ||
+            (item.clientId === input.proId && item.proId === input.clientId)
+          : item.clientId === input.clientId && item.proId === input.proId;
+      return (
+        samePair &&
         (item.jobId ?? "") === (input.jobId ?? "") &&
         (item.workPostId ?? "") === (input.workPostId ?? "") &&
-        (item.mode ?? "client_pro") === mode,
-    );
+        (item.mode ?? "client_pro") === mode
+      );
+    });
 
     if (existing) {
       if (input.initialMessage) {
@@ -394,11 +399,26 @@ export async function openConversation(input: {
   const supabaseClient = supabase;
 
   async function findExistingConversation() {
+    const select =
+      "*, client:profiles!conversations_client_id_fkey(full_name, company_name), pro:profiles!conversations_pro_id_fkey(full_name, company_name)";
+
+    if (mode === "pro_pro" && !input.jobId && !input.workPostId) {
+      const { data, error } = await supabaseClient
+        .from("conversations")
+        .select(select)
+        .eq("mode", "pro_pro")
+        .is("job_id", null)
+        .is("work_post_id", null)
+        .or(
+          `and(client_id.eq.${input.clientId},pro_id.eq.${input.proId}),and(client_id.eq.${input.proId},pro_id.eq.${input.clientId})`,
+        )
+        .maybeSingle();
+      return { data, error };
+    }
+
     let query = supabaseClient
       .from("conversations")
-      .select(
-        "*, client:profiles!conversations_client_id_fkey(full_name, company_name), pro:profiles!conversations_pro_id_fkey(full_name, company_name)",
-      )
+      .select(select)
       .eq("client_id", input.clientId)
       .eq("pro_id", input.proId);
 
