@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Professional } from "@/lib/data";
 import { useQuote } from "./QuoteProvider";
 import { Icon } from "./Icon";
+import { ProTrustBadges } from "./ProTrustBadges";
 
 type ProCardProps = {
   pro: Professional;
@@ -31,33 +32,25 @@ export function ProCard({ pro }: ProCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col p-3 pt-16">
-        <div className="mb-2 flex items-start justify-between gap-2">
-          <div>
-            <h3 className="text-xl font-bold uppercase tracking-wide text-on-background">
-              {pro.name}
-            </h3>
-            {pro.location ? (
-              <p className="flex items-center gap-1 text-xs text-on-surface-variant">
-                <Icon name="location_on" className="text-sm" />
-                {pro.location}
-              </p>
-            ) : null}
-            <div className="flex items-center gap-1 text-on-surface-variant">
-              <Icon
-                name="star"
-                filled
-                className="text-sm text-primary"
-              />
-              <span className="text-sm font-semibold">
-                {pro.rating} ({pro.reviews} reviews)
-              </span>
-            </div>
-          </div>
-          {pro.verified ? (
-            <span className="flex items-center gap-1 rounded bg-status-success px-2 py-1 text-xs font-medium text-on-primary">
-              <Icon name="verified" className="text-sm" /> Lapace Verified
-            </span>
+        <div className="mb-2">
+          <h3 className="text-xl font-bold uppercase tracking-wide text-on-background">
+            {pro.name}
+          </h3>
+          {pro.location ? (
+            <p className="mt-1 flex items-center gap-1 text-xs text-on-surface-variant">
+              <Icon name="location_on" className="text-sm" />
+              {pro.location}
+            </p>
           ) : null}
+          <div className="mt-1 flex items-center gap-1 text-on-surface-variant">
+            <Icon name="star" filled className="text-sm text-primary" />
+            <span className="text-sm font-semibold">
+              {pro.rating} ({pro.reviews} reviews)
+            </span>
+          </div>
+          <div className="mt-3">
+            <ProTrustBadges pro={pro} />
+          </div>
         </div>
 
         <p className="mt-2 line-clamp-2 flex-grow text-base text-secondary">

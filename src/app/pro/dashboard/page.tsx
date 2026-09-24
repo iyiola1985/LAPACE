@@ -87,10 +87,10 @@ export default function ProDashboardPage() {
 
   const statusLabel =
     user.status === "verified"
-      ? "Lapace Verified"
+      ? "Lapace Certified"
       : user.status === "rejected"
         ? "Rejected"
-        : "Pending verification";
+        : "Vetted";
 
   const statusClass =
     user.status === "verified"

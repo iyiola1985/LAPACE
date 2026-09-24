@@ -79,9 +79,14 @@ export const professionals: Professional[] = [
         icon: "shield",
       },
       {
-        title: "Lapace Approved Installer",
-        subtitle: "Tier 1 Partner",
+        title: "Vetted",
+        subtitle: "Application reviewed by Lapace",
         icon: "verified",
+      },
+      {
+        title: "Lapace Certified",
+        subtitle: "Approved by Lapace Admin",
+        icon: "workspace_premium",
       },
     ],
     portfolio: [
@@ -128,8 +133,8 @@ export const professionals: Professional[] = [
         icon: "shield",
       },
       {
-        title: "Lapace Verified",
-        subtitle: "Marketplace Partner",
+        title: "Vetted",
+        subtitle: "Application received — awaiting admin approval",
         icon: "verified",
       },
     ],
@@ -177,9 +182,14 @@ export const professionals: Professional[] = [
         icon: "shield",
       },
       {
-        title: "Lapace Approved Installer",
-        subtitle: "Tier 1 Partner",
+        title: "Vetted",
+        subtitle: "Application reviewed by Lapace",
         icon: "verified",
+      },
+      {
+        title: "Lapace Certified",
+        subtitle: "Approved by Lapace Admin",
+        icon: "workspace_premium",
       },
     ],
     portfolio: [
@@ -270,9 +280,14 @@ export const professionals: Professional[] = [
         icon: "shield",
       },
       {
-        title: "Lapace Approved Installer",
-        subtitle: "Tier 1 Partner",
+        title: "Vetted",
+        subtitle: "Application reviewed by Lapace",
         icon: "verified",
+      },
+      {
+        title: "Lapace Certified",
+        subtitle: "Approved by Lapace Admin",
+        icon: "workspace_premium",
       },
     ],
     portfolio: [

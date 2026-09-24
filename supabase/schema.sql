@@ -193,9 +193,13 @@ grant select, update on public.quote_requests to authenticated;
 -- Safe to re-run after Phase B schema.
 
 drop policy if exists "Verified pros are publicly readable" on public.profiles;
-create policy "Verified pros are publicly readable"
+drop policy if exists "Marketplace pros are publicly readable" on public.profiles;
+create policy "Marketplace pros are publicly readable"
   on public.profiles for select
-  using (role = 'pro' and pro_status = 'verified');
+  using (
+    role = 'pro'
+    and pro_status in ('pending', 'verified')
+  );
 
 do $$ begin
   create type public.job_status as enum ('open', 'hired', 'closed');

@@ -36,7 +36,7 @@ create policy "Published portfolios are publicly readable"
       from public.profiles p
       where p.id = pro_id
         and p.role = 'pro'
-        and p.pro_status = 'verified'
+        and p.pro_status in ('pending', 'verified')
     )
   );
 

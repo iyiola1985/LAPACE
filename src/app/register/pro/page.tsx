@@ -80,7 +80,7 @@ export default function RegisterProPage() {
   return (
     <AuthShell
       title="Pro Registration"
-      subtitle="Join as a contractor. Status stays pending until Lapace verifies you."
+      subtitle="Join as a contractor. You start as Vetted; Lapace Certified unlocks after admin approval."
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {step === 1 ? (

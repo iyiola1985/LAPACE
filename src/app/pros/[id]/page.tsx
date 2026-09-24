@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { BackToDashboard } from "@/components/BackToDashboard";
 import { Icon } from "@/components/Icon";
+import { ProTrustBadges } from "@/components/ProTrustBadges";
 import type { Professional } from "@/lib/data";
 import { getMarketplacePro } from "@/lib/marketplace";
 import { HireActions } from "./HireActions";
@@ -74,10 +75,17 @@ export default function ProProfilePage() {
             alt={pro.name}
             className="h-32 w-32 rounded-full border-4 border-surface-container-lowest object-cover shadow-md md:h-40 md:w-40"
           />
-          {pro.verified ? (
+          {pro.certified ? (
             <div
               className="absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface-container-lowest bg-status-success text-on-primary"
-              title="Verified Pro"
+              title="Lapace Certified"
+            >
+              <Icon name="workspace_premium" filled className="text-[16px]" />
+            </div>
+          ) : pro.verified ? (
+            <div
+              className="absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface-container-lowest bg-primary text-on-primary"
+              title="Vetted"
             >
               <Icon name="verified" filled className="text-[16px]" />
             </div>
@@ -97,6 +105,9 @@ export default function ProProfilePage() {
               {pro.location}
             </p>
           ) : null}
+          <div className="mb-3 flex flex-wrap justify-center gap-2 md:justify-start">
+            <ProTrustBadges pro={pro} size="md" />
+          </div>
           <div className="mb-3 flex flex-wrap justify-center gap-2 md:justify-start">
             {pro.tags.map((tag) => (
               <span

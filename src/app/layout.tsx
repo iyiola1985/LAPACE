@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { AuthProvider } from "@/components/AuthProvider";
 import { BottomNav } from "@/components/BottomNav";
 import { QuoteProvider } from "@/components/QuoteProvider";
+import { SmoothScroll } from "@/components/SmoothScroll";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -32,13 +33,15 @@ export default function RootLayout({
         />
       </head>
       <body className="flex min-h-full flex-col bg-background font-[family-name:var(--font-montserrat)] text-on-background antialiased">
-        <AuthProvider>
-          <QuoteProvider>
-            <AppHeader />
-            <div className="flex-1 pb-20 md:pb-0">{children}</div>
-            <BottomNav />
-          </QuoteProvider>
-        </AuthProvider>
+        <SmoothScroll>
+          <AuthProvider>
+            <QuoteProvider>
+              <AppHeader />
+              <div className="flex-1 pb-20 md:pb-0">{children}</div>
+              <BottomNav />
+            </QuoteProvider>
+          </AuthProvider>
+        </SmoothScroll>
       </body>
     </html>
   );

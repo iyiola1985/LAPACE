@@ -18,6 +18,8 @@ import type { ProfileRow } from "@/lib/supabase/types";
 const DEFAULT_AVATAR =
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80";
 
+const MARKETPLACE_STATUSES = ["pending", "verified"] as const;
+
 function asFilters(services: ProService[]): ProFilter[] {
   return services.filter((service): service is ProFilter =>
     [
@@ -30,11 +32,21 @@ function asFilters(services: ProService[]): ProFilter[] {
   );
 }
 
+function isMarketplaceStatus(
+  status: ProProfile["status"],
+): status is (typeof MARKETPLACE_STATUSES)[number] {
+  return status === "pending" || status === "verified";
+}
+
 export function professionalFromProProfile(
   pro: ProProfile,
   portfolio: PortfolioItem[] = [],
 ): Professional {
   const filters = asFilters(pro.services);
+  const isCertified = pro.status === "verified";
+  const isVetted =
+    pro.status === "pending" || pro.status === "verified";
+
   return {
     id: pro.id,
     name: pro.companyName || pro.fullName,
@@ -45,8 +57,8 @@ export function professionalFromProProfile(
     location: pro.city || "Nigeria",
     rating: 5,
     reviews: 0,
-    verified: pro.status === "verified",
-    certified: pro.status === "verified",
+    verified: isVetted,
+    certified: isCertified,
     filters: filters.length > 0 ? filters : ["Residential"],
     tags: pro.services,
     about: pro.about || "Lapace marketplace roofing professional.",
@@ -55,11 +67,26 @@ export function professionalFromProProfile(
     satisfaction: 100,
     yearsOnLapace: 1,
     credentials: [
-      {
-        title: "Lapace Verified",
-        subtitle: "Approved marketplace pro",
-        icon: "verified",
-      },
+      ...(isVetted
+        ? [
+            {
+              title: "Vetted",
+              subtitle: isCertified
+                ? "Application reviewed by Lapace"
+                : "Application received — awaiting admin approval",
+              icon: "verified",
+            },
+          ]
+        : []),
+      ...(isCertified
+        ? [
+            {
+              title: "Lapace Certified",
+              subtitle: "Approved by Lapace Admin",
+              icon: "workspace_premium",
+            },
+          ]
+        : []),
       {
         title: "Message on Lapace",
         subtitle: "Chat inside the app. Phone and email stay private.",
@@ -79,7 +106,7 @@ export function professionalFromProProfile(
   };
 }
 
-async function listVerifiedFromSupabase(): Promise<Professional[]> {
+async function listMarketplaceFromSupabase(): Promise<Professional[]> {
   const supabase = getSupabaseBrowserClient();
   if (!supabase) return [];
 
@@ -87,7 +114,7 @@ async function listVerifiedFromSupabase(): Promise<Professional[]> {
     .from("profiles")
     .select("*")
     .eq("role", "pro")
-    .eq("pro_status", "verified")
+    .in("pro_status", [...MARKETPLACE_STATUSES])
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -140,19 +167,23 @@ export async function listMarketplacePros(): Promise<Professional[]> {
   const supabase = getSupabaseBrowserClient();
 
   if (supabase) {
-    const verified = await listVerifiedFromSupabase();
-    // Keep the marketplace usable until Lapace verifies real contractors.
-    if (verified.length === 0) return professionals;
-    return verified;
+    const live = await listMarketplaceFromSupabase();
+    // Keep seed listings until real registrations exist.
+    if (live.length === 0) return professionals;
+
+    const seedIds = new Set(professionals.map((pro) => pro.id));
+    const liveOnly = live.filter((pro) => !seedIds.has(pro.id));
+    // Live registrations first (pending + certified), then sample seed pros.
+    return [...liveOnly, ...professionals];
   }
 
   const registered = (await listProProfiles())
-    .filter((pro) => pro.status === "verified")
+    .filter((pro) => isMarketplaceStatus(pro.status))
     .map((pro) => professionalFromProProfile(pro));
 
   const seedIds = new Set(professionals.map((pro) => pro.id));
   const extras = registered.filter((pro) => !seedIds.has(pro.id));
-  return [...professionals, ...extras];
+  return [...extras, ...professionals];
 }
 
 export async function getMarketplacePro(
@@ -168,7 +199,7 @@ export async function getMarketplacePro(
       .select("*")
       .eq("id", id)
       .eq("role", "pro")
-      .eq("pro_status", "verified")
+      .in("pro_status", [...MARKETPLACE_STATUSES])
       .maybeSingle();
 
     if (error) throw new Error(error.message);
@@ -182,16 +213,18 @@ export async function getMarketplacePro(
   }
 
   const registered = (await listProProfiles()).find(
-    (pro) => pro.id === id && pro.status === "verified",
+    (pro) => pro.id === id && isMarketplaceStatus(pro.status),
   );
   return registered ? professionalFromProProfile(registered) : null;
 }
 
+/** Count of pending + verified pros listed on the marketplace. */
 export async function countVerifiedPros(): Promise<number> {
   const supabase = getSupabaseBrowserClient();
   if (!supabase) {
-    return (await listProProfiles()).filter((pro) => pro.status === "verified")
-      .length;
+    return (await listProProfiles()).filter((pro) =>
+      isMarketplaceStatus(pro.status),
+    ).length;
   }
-  return (await listVerifiedFromSupabase()).length;
+  return (await listMarketplaceFromSupabase()).length;
 }

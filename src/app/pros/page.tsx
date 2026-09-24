@@ -72,9 +72,9 @@ export default function ProsPage() {
         <p className="mb-6 text-center text-sm text-on-surface-variant md:text-left">
           {usingSupabase
             ? liveCount > 0
-              ? "Showing Lapace-verified pros from the live directory."
-              : "Sample listings shown until Admin verifies live contractors."
-            : "Showing seed pros plus locally verified registrations."}
+              ? "Showing all registered pros — pending show as Vetted, approved show Lapace Certified."
+              : "Sample listings shown until pros register."
+            : "Showing seed pros plus local registrations (pending and approved)."}
         </p>
         <div className="relative mx-auto w-full max-w-3xl md:mx-0">
           <Icon
@@ -99,7 +99,7 @@ export default function ProsPage() {
       </section>
 
       {loading ? (
-        <p className="text-on-surface-variant">Loading verified professionals...</p>
+        <p className="text-on-surface-variant">Loading professionals...</p>
       ) : null}
       {error ? <p className="text-status-urgent">{error}</p> : null}
 
@@ -110,10 +110,10 @@ export default function ProsPage() {
           ))}
           {results.length === 0 ? (
             <p className="text-on-surface-variant md:col-span-2 lg:col-span-3">
-              No verified professionals match this search yet.
+              No professionals match this search yet.
               {usingSupabase
-                ? " Approve pros in Admin to publish them here."
-                : " Approve a registered pro in Admin, or browse seed listings with All filter."}
+                ? " Register a pro to see them here — pending and approved both appear."
+                : " Register a pro in Admin, or browse seed listings with All filter."}
             </p>
           ) : null}
         </section>

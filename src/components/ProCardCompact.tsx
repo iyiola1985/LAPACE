@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Professional } from "@/lib/data";
 import { Icon } from "./Icon";
+import { ProTrustBadges } from "./ProTrustBadges";
 
 type ProCardCompactProps = {
   pro: Professional;
@@ -33,18 +34,8 @@ export function ProCardCompact({ pro }: ProCardCompactProps) {
         </div>
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        {pro.verified ? (
-          <span className="flex items-center gap-1 rounded border border-border-subtle bg-surface-container-low px-2 py-1 text-xs font-medium text-primary">
-            <Icon name="verified" className="text-[14px]" /> Vetted
-          </span>
-        ) : null}
-        {pro.certified ? (
-          <span className="flex items-center gap-1 rounded border border-border-subtle bg-surface-container-low px-2 py-1 text-xs font-medium text-status-success">
-            <Icon name="workspace_premium" className="text-[14px]" /> Lapace
-            Certified
-          </span>
-        ) : null}
+      <div className="mb-4">
+        <ProTrustBadges pro={pro} />
       </div>
 
       <Link

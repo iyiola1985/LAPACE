@@ -2,6 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import {
+  FadeIn,
+  PageReveal,
+  Stagger,
+  StaggerItem,
+  TouchCarousel,
+} from "@/components/Motion";
 import { ProCardCompact } from "@/components/ProCardCompact";
 import type { Professional } from "@/lib/data";
 import { countVerifiedPros, listMarketplacePros } from "@/lib/marketplace";
@@ -35,17 +42,21 @@ export function FeaturedPros() {
   }, []);
 
   return (
-    <section className="bg-white px-4 py-14 md:px-8">
+    <PageReveal
+      as="section"
+      pageSection
+      className="flex min-h-[100dvh] flex-col justify-center bg-white px-4 py-14 md:px-8"
+    >
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex items-end justify-between">
+        <FadeIn className="mb-8 flex items-end justify-between">
           <div>
             <h2 className="accent-underline text-2xl font-bold uppercase tracking-wide text-on-background md:text-3xl">
-              Verified Professionals
+              Marketplace Pros
             </h2>
             <p className="mt-4 text-base text-on-surface-variant">
               {liveCount > 0
-                ? "Lapace-verified contractors ready for your project."
-                : "Sample listings shown until Lapace verifies live contractors."}
+                ? "Registered contractors on Lapace — pending show Vetted, approved show Lapace Certified."
+                : "Sample listings shown until pros register."}
             </p>
           </div>
           <Link
@@ -54,10 +65,12 @@ export function FeaturedPros() {
           >
             View Directory →
           </Link>
-        </div>
+        </FadeIn>
 
         {loading ? (
-          <p className="text-sm text-on-surface-variant">Loading professionals...</p>
+          <p className="text-sm text-on-surface-variant">
+            Loading professionals...
+          </p>
         ) : pros.length === 0 ? (
           <p className="text-sm text-on-surface-variant">
             No professionals yet.{" "}
@@ -67,13 +80,24 @@ export function FeaturedPros() {
             or browse the directory after Admin verification.
           </p>
         ) : (
-          <div className="scrollbar-hide flex snap-x gap-4 overflow-x-auto pb-4">
-            {pros.map((pro) => (
-              <ProCardCompact key={pro.id} pro={pro} />
-            ))}
-          </div>
+          <>
+            <div className="md:hidden">
+              <TouchCarousel>
+                {pros.map((pro) => (
+                  <ProCardCompact key={pro.id} pro={pro} />
+                ))}
+              </TouchCarousel>
+            </div>
+            <Stagger className="scrollbar-hide hidden snap-x gap-4 overflow-x-auto pb-4 md:flex">
+              {pros.map((pro) => (
+                <StaggerItem key={pro.id}>
+                  <ProCardCompact pro={pro} />
+                </StaggerItem>
+              ))}
+            </Stagger>
+          </>
         )}
       </div>
-    </section>
+    </PageReveal>
   );
 }
