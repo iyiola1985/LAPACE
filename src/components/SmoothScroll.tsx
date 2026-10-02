@@ -23,11 +23,11 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
     <ReactLenis
       root
       options={{
-        lerp: 0.1,
+        lerp: 0.085,
         smoothWheel: true,
         syncTouch: false,
         touchMultiplier: 1.2,
-        wheelMultiplier: 1,
+        wheelMultiplier: 0.9,
         autoRaf: true,
       }}
     >

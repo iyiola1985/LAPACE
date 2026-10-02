@@ -13,10 +13,19 @@ import {
 
 const FRAME_COUNT = 180;
 const FRAME_PAD = 4;
+/** Bump when replacing frame assets so browsers skip stale cached JPGs. */
+const FRAME_CACHE_VERSION = "hq-30fps-v2";
+/** How quickly the canvas catches scroll target (lower = smoother, esp. reversing from 100%). */
+const FRAME_LERP = 0.14;
+const FRAME_SNAP_EPSILON = 0.08;
 
 function frameSrc(index: number) {
   const n = String(index).padStart(FRAME_PAD, "0");
-  return `/scroll-frames/frame_${n}.jpg`;
+  return `/scroll-frames/frame_${n}.jpg?v=${FRAME_CACHE_VERSION}`;
+}
+
+function clamp01(value: number) {
+  return Math.min(1, Math.max(0, value));
 }
 
 type ScrollFrameSequenceProps = {
@@ -27,6 +36,7 @@ type ScrollFrameSequenceProps = {
 /**
  * Full-page scroll scrub: fixed canvas advances through JPG frames
  * based on overall document scroll progress (not just the hero).
+ * Displayed frame is lerped so reversing from 100% stays smooth.
  */
 export function ScrollFrameSequence({
   children,
@@ -36,8 +46,11 @@ export function ScrollFrameSequence({
   const lenis = useLenis();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
-  const frameRef = useRef(0);
-  const rafDrawRef = useRef(0);
+  const targetFrameRef = useRef(0);
+  const displayFrameRef = useRef(0);
+  const drawnFrameRef = useRef(-1);
+  const rafLoopRef = useRef(0);
+  const progressUiRef = useRef(0);
   const [ready, setReady] = useState(false);
   const [loadedCount, setLoadedCount] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -76,33 +89,34 @@ export function ScrollFrameSequence({
     const dx = (w - dw) / 2;
     const dy = (h - dh) / 2;
     ctx.drawImage(img, dx, dy, dw, dh);
+    drawnFrameRef.current = index;
   }, []);
-
-  const scheduleDraw = useCallback(
-    (index: number) => {
-      frameRef.current = index;
-      cancelAnimationFrame(rafDrawRef.current);
-      rafDrawRef.current = requestAnimationFrame(() => {
-        drawFrame(frameRef.current);
-      });
-    },
-    [drawFrame],
-  );
 
   const pickLoadedFrame = useCallback((target: number) => {
-    if (imagesRef.current[target]) return target;
-    let best = target;
-    let dist = Infinity;
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      if (!imagesRef.current[i]) continue;
-      const d = Math.abs(i - target);
-      if (d < dist) {
-        dist = d;
-        best = i;
-      }
+    const rounded = Math.round(target);
+    if (imagesRef.current[rounded]) return rounded;
+
+    // Prefer the nearest loaded frame in the travel direction when reversing.
+    const from = Math.round(displayFrameRef.current);
+    const dir = rounded >= from ? 1 : -1;
+    for (let step = 0; step < FRAME_COUNT; step++) {
+      const a = rounded + step * dir;
+      const b = rounded - step * dir;
+      if (a >= 0 && a < FRAME_COUNT && imagesRef.current[a]) return a;
+      if (b >= 0 && b < FRAME_COUNT && imagesRef.current[b]) return b;
     }
-    return best;
+    return from;
   }, []);
+
+  const readScrollProgress = useCallback(() => {
+    if (lenis && lenis.limit > 0) {
+      return clamp01(lenis.scroll / lenis.limit);
+    }
+    const doc = document.documentElement;
+    const total = doc.scrollHeight - window.innerHeight;
+    if (total <= 0) return 0;
+    return clamp01(window.scrollY / total);
+  }, [lenis]);
 
   // Preload frames
   useEffect(() => {
@@ -113,7 +127,7 @@ export function ScrollFrameSequence({
         imagesRef.current[0] = img;
         setLoadedCount(1);
         setReady(true);
-        scheduleDraw(0);
+        drawFrame(0);
       };
       return;
     }
@@ -134,7 +148,7 @@ export function ScrollFrameSequence({
             setLoadedCount(done);
             if (i === 0) {
               setReady(true);
-              scheduleDraw(0);
+              drawFrame(0);
             }
           }
           resolve();
@@ -144,15 +158,26 @@ export function ScrollFrameSequence({
     }
 
     void (async () => {
-      const sparse = Array.from(
-        { length: Math.ceil(FRAME_COUNT / 6) },
-        (_, k) => k * 6,
-      ).filter((i) => i < FRAME_COUNT);
-      await Promise.all(sparse.map(loadOne));
+      // Prioritize start + end so reversing from 100% has frames ready.
+      const priority = Array.from(
+        new Set([
+          ...Array.from({ length: Math.ceil(FRAME_COUNT / 6) }, (_, k) => k * 6),
+          FRAME_COUNT - 1,
+          FRAME_COUNT - 2,
+          FRAME_COUNT - 3,
+          FRAME_COUNT - 6,
+          FRAME_COUNT - 12,
+          0,
+          1,
+          2,
+        ]),
+      ).filter((i) => i >= 0 && i < FRAME_COUNT);
+
+      await Promise.all(priority.map(loadOne));
       if (cancelled) return;
 
       const rest = Array.from({ length: FRAME_COUNT }, (_, i) => i).filter(
-        (i) => !sparse.includes(i),
+        (i) => !priority.includes(i),
       );
       const batch = 12;
       for (let i = 0; i < rest.length; i += batch) {
@@ -163,57 +188,82 @@ export function ScrollFrameSequence({
 
     return () => {
       cancelled = true;
-      cancelAnimationFrame(rafDrawRef.current);
+      cancelAnimationFrame(rafLoopRef.current);
     };
-  }, [urls, reduceMotion, scheduleDraw]);
+  }, [urls, reduceMotion, drawFrame]);
 
-  // Full-page scroll → frame
+  // Continuous lerp loop: keeps reverse from 100% buttery instead of frame-snapping.
   useEffect(() => {
     if (reduceMotion) return;
 
-    function update() {
-      let p = 0;
-      if (lenis && lenis.limit > 0) {
-        p = Math.min(1, Math.max(0, lenis.scroll / lenis.limit));
+    let running = true;
+
+    function tick() {
+      if (!running) return;
+
+      const p = readScrollProgress();
+      targetFrameRef.current = p * (FRAME_COUNT - 1);
+
+      const target = targetFrameRef.current;
+      const current = displayFrameRef.current;
+      const delta = target - current;
+
+      if (Math.abs(delta) < FRAME_SNAP_EPSILON) {
+        displayFrameRef.current = target;
       } else {
-        const doc = document.documentElement;
-        const total = doc.scrollHeight - window.innerHeight;
-        if (total > 0) {
-          p = Math.min(1, Math.max(0, window.scrollY / total));
-        }
+        displayFrameRef.current = current + delta * FRAME_LERP;
       }
 
-      setProgress(p);
-      const target = Math.round(p * (FRAME_COUNT - 1));
-      scheduleDraw(pickLoadedFrame(target));
+      const nextIndex = pickLoadedFrame(displayFrameRef.current);
+      if (nextIndex !== drawnFrameRef.current) {
+        drawFrame(nextIndex);
+      }
+
+      // Throttle React progress UI so reverse scroll isn't hitchy from re-renders.
+      if (Math.abs(p - progressUiRef.current) >= 0.005 || p === 0 || p === 1) {
+        progressUiRef.current = p;
+        setProgress(p);
+      }
+
+      rafLoopRef.current = requestAnimationFrame(tick);
     }
 
-    update();
+    rafLoopRef.current = requestAnimationFrame(tick);
+
+    function syncTarget() {
+      const p = readScrollProgress();
+      targetFrameRef.current = p * (FRAME_COUNT - 1);
+    }
 
     if (lenis) {
-      const unsub = lenis.on("scroll", update);
-      window.addEventListener("resize", update);
+      const unsub = lenis.on("scroll", syncTarget);
+      window.addEventListener("resize", syncTarget);
       return () => {
+        running = false;
+        cancelAnimationFrame(rafLoopRef.current);
         unsub();
-        window.removeEventListener("resize", update);
+        window.removeEventListener("resize", syncTarget);
       };
     }
 
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    window.addEventListener("scroll", syncTarget, { passive: true });
+    window.addEventListener("resize", syncTarget);
     return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
+      running = false;
+      cancelAnimationFrame(rafLoopRef.current);
+      window.removeEventListener("scroll", syncTarget);
+      window.removeEventListener("resize", syncTarget);
     };
-  }, [lenis, reduceMotion, scheduleDraw, pickLoadedFrame]);
+  }, [lenis, reduceMotion, readScrollProgress, pickLoadedFrame, drawFrame]);
 
   useEffect(() => {
     function onResize() {
-      scheduleDraw(frameRef.current);
+      drawnFrameRef.current = -1;
+      drawFrame(pickLoadedFrame(displayFrameRef.current));
     }
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [scheduleDraw]);
+  }, [drawFrame, pickLoadedFrame]);
 
   const loadPct = Math.round((loadedCount / FRAME_COUNT) * 100);
 
@@ -243,7 +293,7 @@ export function ScrollFrameSequence({
         <div className="pointer-events-none fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 flex-col items-center gap-2 md:bottom-8">
           <div className="h-1 w-32 overflow-hidden rounded-full bg-white/25 shadow-sm">
             <div
-              className="h-full rounded-full bg-primary transition-[width] duration-75"
+              className="h-full rounded-full bg-primary transition-[width] duration-100 ease-out"
               style={{ width: `${Math.round(progress * 100)}%` }}
             />
           </div>
