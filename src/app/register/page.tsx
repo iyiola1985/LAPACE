@@ -4,35 +4,39 @@ import { Icon } from "@/components/Icon";
 export default function RegisterPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 md:px-8 md:py-12">
-      <h1 className="accent-underline accent-underline-center mx-auto text-center text-2xl font-bold uppercase tracking-wide md:text-3xl">
+      <h1 className="accent-underline accent-underline-center mx-auto text-center text-2xl font-bold uppercase tracking-wide text-white md:text-3xl">
         Create Your Account
       </h1>
-      <p className="mx-auto mt-4 max-w-2xl text-center text-on-surface-variant">
+      <p className="mx-auto mt-4 max-w-2xl text-center text-white/80">
         Choose how you want to use Lapace Roofing Marketplace.
       </p>
       <div className="mt-10 grid gap-5 md:grid-cols-2">
         <Link
           href="/register/client"
-          className="border border-border-subtle bg-white p-6 hover:shadow-md"
+          className="border border-white/25 bg-white/90 p-6 text-[#2c2c2c] backdrop-blur-sm hover:bg-white hover:shadow-md"
         >
           <div className="mb-4 flex h-12 w-12 items-center justify-center bg-primary text-white">
             <Icon name="home" />
           </div>
-          <h2 className="text-lg font-bold uppercase">Register as Client</h2>
-          <p className="mt-2 text-sm text-on-surface-variant">
+          <h2 className="text-lg font-bold uppercase text-[#2c2c2c]">
+            Register as Client
+          </h2>
+          <p className="mt-2 text-sm text-[#555555]">
             Post jobs, review offers from verified companies, and keep deals on
             Lapace.
           </p>
         </Link>
         <Link
           href="/register/pro"
-          className="border border-border-subtle bg-white p-6 hover:shadow-md"
+          className="border border-white/25 bg-white/90 p-6 text-[#2c2c2c] backdrop-blur-sm hover:bg-white hover:shadow-md"
         >
           <div className="mb-4 flex h-12 w-12 items-center justify-center bg-surface-dark text-white">
             <Icon name="engineering" />
           </div>
-          <h2 className="text-lg font-bold uppercase">Register as Pro Company</h2>
-          <p className="mt-2 text-sm text-on-surface-variant">
+          <h2 className="text-lg font-bold uppercase text-[#2c2c2c]">
+            Register as Pro Company
+          </h2>
+          <p className="mt-2 text-sm text-[#555555]">
             Apply for verification, bid on client jobs, post work available, and
             collaborate pro-to-pro after approval.
           </p>

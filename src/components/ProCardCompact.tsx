@@ -9,7 +9,7 @@ type ProCardCompactProps = {
 
 export function ProCardCompact({ pro }: ProCardCompactProps) {
   return (
-    <article className="min-w-[280px] snap-start rounded-xl border border-white/25 bg-white/15 p-3 shadow-lg backdrop-blur-sm transition-shadow hover:bg-white/25 hover:shadow-xl md:min-w-[320px]">
+    <article className="font-helvetica min-w-[280px] snap-start rounded-xl border border-white/25 bg-white/15 p-3 shadow-lg backdrop-blur-sm transition-shadow hover:bg-white/25 hover:shadow-xl md:min-w-[320px]">
       <div className="mb-4 flex items-center gap-4">
         <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-white/20">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -20,14 +20,14 @@ export function ProCardCompact({ pro }: ProCardCompactProps) {
           />
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-white drop-shadow">{pro.name}</h3>
+          <h3 className="text-sm font-semibold text-white">{pro.name}</h3>
           <div className="mt-1 flex items-center gap-1">
             <Icon
               name="star"
               filled
               className="text-[16px] text-primary"
             />
-            <span className="text-xs font-medium tracking-wide text-white/75">
+            <span className="text-xs font-medium tracking-wide text-white">
               {pro.rating} ({pro.reviews} reviews)
             </span>
           </div>

@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { AuthProvider } from "@/components/AuthProvider";
 import { BottomNav } from "@/components/BottomNav";
 import { QuoteProvider } from "@/components/QuoteProvider";
+import { ScrollFrameSequence } from "@/components/ScrollFrameSequence";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import "./globals.css";
 
@@ -32,15 +33,19 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="flex min-h-full flex-col bg-background font-[family-name:var(--font-montserrat)] text-on-background antialiased">
+      <body className="font-helvetica flex min-h-full flex-col bg-transparent text-white antialiased">
         <SmoothScroll>
-          <AuthProvider>
-            <QuoteProvider>
-              <AppHeader />
-              <div className="flex-1 pb-20 md:pb-0">{children}</div>
-              <BottomNav />
-            </QuoteProvider>
-          </AuthProvider>
+          <ScrollFrameSequence className="flex min-h-full flex-1 flex-col">
+            <AuthProvider>
+              <QuoteProvider>
+                <AppHeader />
+                <div className="relative z-10 flex-1 pb-20 md:pb-0">
+                  {children}
+                </div>
+                <BottomNav />
+              </QuoteProvider>
+            </AuthProvider>
+          </ScrollFrameSequence>
         </SmoothScroll>
       </body>
     </html>

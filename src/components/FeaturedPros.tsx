@@ -42,17 +42,20 @@ export function FeaturedPros() {
   }, []);
 
   return (
-    <PageReveal as="section" className="bg-transparent px-4 py-16 md:px-8">
+    <PageReveal
+      as="section"
+      className="font-helvetica bg-transparent px-4 py-16 md:px-8"
+    >
       <div className="mx-auto max-w-7xl">
         <FadeIn className="mb-8 flex items-end justify-between">
           <div>
-            <h2 className="accent-underline text-2xl font-bold uppercase tracking-wide text-white drop-shadow-md md:text-3xl">
+            <h2 className="accent-underline text-2xl font-bold uppercase tracking-wide text-white md:text-3xl">
               Marketplace Pros
             </h2>
-            <p className="mt-4 max-w-2xl text-base text-white/80 drop-shadow">
+            <p className="mt-4 max-w-2xl text-base text-white">
               {liveCount > 0
-                ? "Registered contractors on Lapace — pending show Vetted, approved show Lapace Certified."
-                : "Sample listings shown until pros register."}
+                ? "Browse contractors and workers on Lapace — pending show Vetted, approved show Lapace Certified."
+                : "The place where roofing contractors and skilled workers meet."}
             </p>
           </div>
           <Link
@@ -64,9 +67,9 @@ export function FeaturedPros() {
         </FadeIn>
 
         {loading ? (
-          <p className="text-sm text-white/70">Loading professionals...</p>
+          <p className="text-sm text-white">Loading professionals...</p>
         ) : pros.length === 0 ? (
-          <p className="text-sm text-white/70">
+          <p className="text-sm text-white">
             No professionals yet.{" "}
             <Link href="/register/pro" className="text-primary underline">
               Register as a pro

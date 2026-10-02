@@ -34,13 +34,13 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
   ].filter((link): link is { href: string; label: string } => Boolean(link));
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border-subtle bg-white">
+    <header className="sticky top-0 z-50 w-full border-b border-white/15 bg-black/35 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-2 md:px-8">
         <div className="flex items-center gap-3">
           <button
             type="button"
             aria-label="Menu"
-            className="rounded p-2 text-on-background transition-colors hover:bg-surface-container-low md:hidden"
+            className="rounded p-2 text-white transition-colors hover:bg-white/10 md:hidden"
           >
             <Icon name="menu" />
           </button>
@@ -70,8 +70,8 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
                   href={link.href}
                   className={
                     active
-                      ? "border-b-2 border-primary pb-1 text-xs font-semibold uppercase tracking-[0.14em] text-on-background"
-                      : "border-b-2 border-transparent pb-1 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant transition-colors hover:text-on-background"
+                      ? "border-b-2 border-primary pb-1 text-xs font-semibold uppercase tracking-[0.14em] text-white"
+                      : "border-b-2 border-transparent pb-1 text-xs font-semibold uppercase tracking-[0.14em] text-white/70 transition-colors hover:text-white"
                   }
                 >
                   {link.label}
@@ -92,7 +92,7 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
                     : "/dashboard"
               }
               aria-label="Dashboard"
-              className="rounded p-2 text-on-background transition-colors hover:bg-surface-container-low md:hidden"
+              className="rounded p-2 text-white transition-colors hover:bg-white/10 md:hidden"
             >
               <Icon name="dashboard" />
             </Link>
@@ -100,7 +100,7 @@ export function AppHeader({ showDesktopNav = true }: AppHeaderProps) {
           <Link
             href="/account"
             aria-label="Account"
-            className="rounded p-2 text-on-background transition-colors hover:bg-surface-container-low"
+            className="rounded p-2 text-white transition-colors hover:bg-white/10"
           >
             <Icon name="account_circle" />
           </Link>

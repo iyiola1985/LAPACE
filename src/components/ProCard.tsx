@@ -21,10 +21,10 @@ export function ProCard({ pro }: ProCardProps) {
   }
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-xl border border-border-subtle bg-surface-container-lowest transition-shadow duration-300 hover:shadow-lg">
+    <article className="flex flex-col overflow-hidden rounded-xl border border-white/20 bg-white/92 text-[#2c2c2c] shadow-lg backdrop-blur-sm transition-shadow duration-300 hover:shadow-xl">
       <div className="relative flex h-32 items-end justify-center bg-surface-container pb-4">
         <div
-          className="absolute -bottom-12 h-24 w-24 rounded-full border-4 border-surface-container-lowest bg-cover bg-center"
+          className="absolute -bottom-12 h-24 w-24 rounded-full border-4 border-white bg-cover bg-center"
           style={{ backgroundImage: `url('${pro.avatar}')` }}
           role="img"
           aria-label={pro.name}
@@ -33,16 +33,16 @@ export function ProCard({ pro }: ProCardProps) {
 
       <div className="flex flex-1 flex-col p-3 pt-16">
         <div className="mb-2">
-          <h3 className="text-xl font-bold uppercase tracking-wide text-on-background">
+          <h3 className="text-xl font-bold uppercase tracking-wide text-[#2c2c2c]">
             {pro.name}
           </h3>
           {pro.location ? (
-            <p className="mt-1 flex items-center gap-1 text-xs text-on-surface-variant">
+            <p className="mt-1 flex items-center gap-1 text-xs text-[#555555]">
               <Icon name="location_on" className="text-sm" />
               {pro.location}
             </p>
           ) : null}
-          <div className="mt-1 flex items-center gap-1 text-on-surface-variant">
+          <div className="mt-1 flex items-center gap-1 text-[#555555]">
             <Icon name="star" filled className="text-sm text-primary" />
             <span className="text-sm font-semibold">
               {pro.rating} ({pro.reviews} reviews)
@@ -53,7 +53,7 @@ export function ProCard({ pro }: ProCardProps) {
           </div>
         </div>
 
-        <p className="mt-2 line-clamp-2 flex-grow text-base text-secondary">
+        <p className="mt-2 line-clamp-2 flex-grow text-base text-[#555555]">
           {pro.about}
         </p>
 

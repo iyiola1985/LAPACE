@@ -66,10 +66,10 @@ export default function ProsPage() {
     <main className="mx-auto max-w-7xl px-4 py-6 md:px-8">
       <BackToDashboard />
       <section className="mb-12">
-        <h1 className="accent-underline mb-2 text-center text-2xl font-bold uppercase tracking-wide md:text-left md:text-3xl">
+        <h1 className="accent-underline mb-2 text-center text-2xl font-bold uppercase tracking-wide text-white md:text-left md:text-3xl">
           Find a Roofing Professional
         </h1>
-        <p className="mb-6 text-center text-sm text-on-surface-variant md:text-left">
+        <p className="mb-6 text-center text-sm text-white/80 md:text-left">
           {usingSupabase
             ? liveCount > 0
               ? "Showing all registered pros — pending show as Vetted, approved show Lapace Certified."

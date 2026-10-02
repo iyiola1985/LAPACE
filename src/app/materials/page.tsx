@@ -28,10 +28,10 @@ export default function MaterialsPage() {
     <main className="relative mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 py-6 md:px-8">
       <BackToDashboard />
       <section className="flex flex-col gap-2">
-        <h1 className="accent-underline text-2xl font-bold uppercase tracking-wide text-on-background md:text-3xl">
+        <h1 className="accent-underline text-2xl font-bold uppercase tracking-wide text-white md:text-3xl">
           Materials Catalog
         </h1>
-        <p className="max-w-2xl text-lg text-on-surface-variant">
+        <p className="max-w-2xl text-lg text-white/80">
           Browse our extensive inventory of high-grade roofing materials. Built
           for durability and designed for modern structural aesthetics.
         </p>
