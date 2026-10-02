@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useQuote } from "@/components/QuoteProvider";
 import { useAuth } from "@/components/AuthProvider";
+import { ProfilePillButton } from "@/components/ProfileMediaCard";
 import { isVerifiedPro, marketplaceLockMessage } from "@/lib/access";
 import { openConversation } from "@/lib/messages";
 
@@ -114,28 +115,23 @@ export function HireActions({ proId, proName }: HireActionsProps) {
       : "Message Pro";
 
   return (
-    <div className="fixed bottom-20 left-0 z-40 flex w-full items-center justify-end gap-4 border-t border-border-subtle bg-white p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] md:bottom-0">
+    <div className="fixed bottom-20 left-0 z-40 flex w-full items-center justify-end gap-4 border-t border-white/15 bg-black/55 p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.25)] backdrop-blur-md md:bottom-0">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-end gap-2 px-4 md:px-8">
         {error ? <p className="text-sm text-status-urgent">{error}</p> : null}
-        <div className="flex justify-end gap-4">
+        <div className="flex flex-wrap justify-end gap-3">
           {showMessage ? (
-            <button
-              type="button"
+            <ProfilePillButton
               disabled={busy}
               onClick={() => void handleMessage()}
-              className="border border-primary px-6 py-3 text-xs font-bold uppercase tracking-[0.1em] text-primary transition-colors hover:bg-primary-fixed disabled:opacity-60"
+              variant="ghost"
             >
               {messageLabel}
-            </button>
+            </ProfilePillButton>
           ) : null}
           {showQuote ? (
-            <button
-              type="button"
-              onClick={handleQuoteRequest}
-              className="bg-primary px-6 py-3 text-xs font-bold uppercase tracking-[0.1em] text-white shadow-sm transition-colors hover:bg-primary-container"
-            >
-              Request Quote
-            </button>
+            <ProfilePillButton onClick={handleQuoteRequest} variant="solid">
+              Request Quote +
+            </ProfilePillButton>
           ) : null}
         </div>
       </div>

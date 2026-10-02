@@ -1,49 +1,54 @@
-import Link from "next/link";
+"use client";
+
+import { useRouter } from "next/navigation";
 import type { Professional } from "@/lib/data";
-import { Icon } from "./Icon";
-import { ProTrustBadges } from "./ProTrustBadges";
+import { useQuote } from "./QuoteProvider";
+import {
+  ProfileMediaCard,
+  ProfilePillButton,
+} from "./ProfileMediaCard";
 
 type ProCardCompactProps = {
   pro: Professional;
 };
 
 export function ProCardCompact({ pro }: ProCardCompactProps) {
+  const router = useRouter();
+  const { addItem } = useQuote();
+
+  function requestQuote() {
+    addItem({ id: `pro:${pro.id}`, name: pro.name, kind: "pro" });
+    router.push(`/quotes?pro=${encodeURIComponent(pro.id)}`);
+  }
+
   return (
-    <article className="font-helvetica min-w-[280px] snap-start rounded-xl border border-white/25 bg-white/15 p-3 shadow-lg backdrop-blur-sm transition-shadow hover:bg-white/25 hover:shadow-xl md:min-w-[320px]">
-      <div className="mb-4 flex items-center gap-4">
-        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-white/20">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={pro.avatar}
-            alt={pro.name}
-            className="h-full w-full object-cover"
-          />
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold text-white">{pro.name}</h3>
-          <div className="mt-1 flex items-center gap-1">
-            <Icon
-              name="star"
-              filled
-              className="text-[16px] text-primary"
-            />
-            <span className="text-xs font-medium tracking-wide text-white">
-              {pro.rating} ({pro.reviews} reviews)
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <ProTrustBadges pro={pro} variant="glass" />
-      </div>
-
-      <Link
-        href={`/quotes?pro=${pro.id}`}
-        className="block w-full border border-white/70 py-2 text-center text-xs font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-white hover:text-surface-dark"
-      >
-        Request Quote
-      </Link>
-    </article>
+    <ProfileMediaCard
+      className="min-w-[280px] snap-start md:min-w-[320px]"
+      aspectClassName="aspect-[4/5] h-full min-h-[360px]"
+      image={pro.avatar}
+      imageAlt={pro.name}
+      title={pro.name}
+      subtitle={pro.specialty || pro.about}
+      certified={pro.certified}
+      verified={pro.verified}
+      stats={[
+        { icon: "star", label: "Rating", value: pro.rating },
+        {
+          icon: "photo_library",
+          label: "Portfolio",
+          value: Math.max(pro.portfolio.length, pro.projects),
+        },
+      ]}
+      secondaryAction={
+        <ProfilePillButton href={`/pros/${pro.id}`} variant="ghost">
+          Portfolio
+        </ProfilePillButton>
+      }
+      primaryAction={
+        <ProfilePillButton onClick={requestQuote} variant="solid">
+          Request Quote +
+        </ProfilePillButton>
+      }
+    />
   );
 }

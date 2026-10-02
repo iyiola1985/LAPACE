@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Professional } from "@/lib/data";
 import { useQuote } from "./QuoteProvider";
-import { Icon } from "./Icon";
-import { ProTrustBadges } from "./ProTrustBadges";
+import {
+  ProfileMediaCard,
+  ProfilePillButton,
+} from "./ProfileMediaCard";
 
 type ProCardProps = {
   pro: Professional;
@@ -21,69 +22,31 @@ export function ProCard({ pro }: ProCardProps) {
   }
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-xl border border-white/20 bg-white/92 text-[#2c2c2c] shadow-lg backdrop-blur-sm transition-shadow duration-300 hover:shadow-xl">
-      <div className="relative flex h-32 items-end justify-center bg-surface-container pb-4">
-        <div
-          className="absolute -bottom-12 h-24 w-24 rounded-full border-4 border-white bg-cover bg-center"
-          style={{ backgroundImage: `url('${pro.avatar}')` }}
-          role="img"
-          aria-label={pro.name}
-        />
-      </div>
-
-      <div className="flex flex-1 flex-col p-3 pt-16">
-        <div className="mb-2">
-          <h3 className="text-xl font-bold uppercase tracking-wide text-[#2c2c2c]">
-            {pro.name}
-          </h3>
-          {pro.location ? (
-            <p className="mt-1 flex items-center gap-1 text-xs text-[#555555]">
-              <Icon name="location_on" className="text-sm" />
-              {pro.location}
-            </p>
-          ) : null}
-          <div className="mt-1 flex items-center gap-1 text-[#555555]">
-            <Icon name="star" filled className="text-sm text-primary" />
-            <span className="text-sm font-semibold">
-              {pro.rating} ({pro.reviews} reviews)
-            </span>
-          </div>
-          <div className="mt-3">
-            <ProTrustBadges pro={pro} />
-          </div>
-        </div>
-
-        <p className="mt-2 line-clamp-2 flex-grow text-base text-[#555555]">
-          {pro.about}
-        </p>
-
-        <div className="mb-6 mt-4 flex flex-wrap gap-2">
-          {pro.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded bg-surface-container-low px-2 py-1 text-xs font-medium text-primary"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-auto flex gap-2">
-          <Link
-            href={`/pros/${pro.id}`}
-            className="flex-1 border border-primary py-2 text-center text-xs font-bold uppercase tracking-[0.1em] text-primary transition-colors hover:bg-primary-fixed"
-          >
-            View Portfolio
-          </Link>
-          <button
-            type="button"
-            onClick={requestQuote}
-            className="flex-1 bg-primary py-2 text-xs font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-primary-container"
-          >
-            Request Quote
-          </button>
-        </div>
-      </div>
-    </article>
+    <ProfileMediaCard
+      image={pro.avatar}
+      imageAlt={pro.name}
+      title={pro.name}
+      subtitle={pro.about}
+      certified={pro.certified}
+      verified={pro.verified}
+      stats={[
+        { icon: "group", label: "Reviews", value: pro.reviews },
+        {
+          icon: "photo_library",
+          label: "Portfolio",
+          value: Math.max(pro.portfolio.length, pro.projects),
+        },
+      ]}
+      secondaryAction={
+        <ProfilePillButton href={`/pros/${pro.id}`} variant="ghost">
+          Portfolio
+        </ProfilePillButton>
+      }
+      primaryAction={
+        <ProfilePillButton onClick={requestQuote} variant="solid">
+          Request Quote +
+        </ProfilePillButton>
+      }
+    />
   );
 }

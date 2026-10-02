@@ -2,6 +2,10 @@
 
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
+  ProfileMediaCard,
+  ProfilePillButton,
+} from "@/components/ProfileMediaCard";
+import {
   deletePortfolioItem,
   listPortfolio,
   uploadPortfolioImages,
@@ -78,23 +82,22 @@ export function ProPortfolioManager({ proId }: ProPortfolioManagerProps) {
   }
 
   return (
-    <section className="mt-8 border border-border-subtle bg-white p-5">
+    <section className="mt-8 rounded-[1.5rem] border border-white/15 bg-white/92 p-5 text-[#2c2c2c] shadow-lg backdrop-blur-sm">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="font-bold uppercase tracking-wide">Project Portfolio</h2>
-          <p className="mt-1 text-sm text-on-surface-variant">
+          <h2 className="text-lg font-bold tracking-tight">Project Portfolio</h2>
+          <p className="mt-1 text-sm text-[#555555]">
             Add as many completed-project pictures as you need. Each image can
             be up to 10 MB.
           </p>
         </div>
-        <button
-          type="button"
+        <ProfilePillButton
           disabled={uploading}
           onClick={() => inputRef.current?.click()}
-          className="bg-primary px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-60"
+          variant="brand"
         >
-          {uploading ? "Uploading..." : "Add Pictures"}
-        </button>
+          {uploading ? "Uploading..." : "Add Pictures +"}
+        </ProfilePillButton>
         <input
           ref={inputRef}
           type="file"
@@ -113,44 +116,33 @@ export function ProPortfolioManager({ proId }: ProPortfolioManagerProps) {
       ) : null}
 
       {loading ? (
-        <p className="mt-6 text-sm text-on-surface-variant">
-          Loading portfolio...
-        </p>
+        <p className="mt-6 text-sm text-[#555555]">Loading portfolio...</p>
       ) : items.length === 0 ? (
-        <div className="mt-6 border border-dashed border-border-subtle bg-surface-container-low p-8 text-center">
+        <div className="mt-6 rounded-2xl border border-dashed border-black/15 bg-black/[0.03] p-8 text-center">
           <p className="text-sm font-semibold">No project pictures yet</p>
-          <p className="mt-1 text-xs text-on-surface-variant">
+          <p className="mt-1 text-xs text-[#555555]">
             Upload completed roofing work to help clients choose you.
           </p>
         </div>
       ) : (
-        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {items.map((item) => (
-            <article
+            <ProfileMediaCard
               key={item.id}
-              className="overflow-hidden border border-border-subtle bg-surface-container-lowest"
-            >
-              <div className="aspect-[4/3] overflow-hidden bg-surface-container">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={item.imageUrl}
-                  alt={item.title || "Roofing project"}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="flex items-center justify-between gap-2 p-3">
-                <p className="min-w-0 truncate text-xs font-semibold">
-                  {item.title || "Roofing project"}
-                </p>
-                <button
-                  type="button"
+              image={item.imageUrl}
+              imageAlt={item.title || "Roofing project"}
+              title={item.title || "Roofing project"}
+              subtitle="Portfolio project"
+              aspectClassName="aspect-[4/5] min-h-[240px]"
+              primaryAction={
+                <ProfilePillButton
                   onClick={() => void handleDelete(item)}
-                  className="shrink-0 text-xs font-bold uppercase text-status-urgent hover:underline"
+                  variant="ghost"
                 >
                   Remove
-                </button>
-              </div>
-            </article>
+                </ProfilePillButton>
+              }
+            />
           ))}
         </div>
       )}
